@@ -45,6 +45,9 @@ module InputHandler_ext
    public :: read_dmdata, read_pddata, read_chirdata, read_biqdmdata, read_bqdata, read_ringdata, read_sitefield
    public :: read_ip_damping, read_ip_damping_alloy, read_damping, read_damping_alloy, read_fourxdata
    public :: read_barriers, read_fixed_moments, read_exchange_getNeighVec
+   public :: read_bqfull11, read_bqfull21, read_bqfull22, read_bqfull23
+   public :: read_bqfull31, read_bqfull32, read_bqfull33, read_bqfull34
+   public :: read_bqfull35, read_bqfull36
 
 contains
 
@@ -2660,5 +2663,873 @@ contains
       end if
 
    end subroutine allocate_barriers
+
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull11
+   !> @brief Read the variables for the biquadratic 4spin-2site H11 interaction
+   !---------------------------------------------------------------------------------
+   subroutine read_bqfull11()
+      !
+      implicit none
+      !
+      integer						::  i_stat
+      integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
+      integer       				:: flines,no_shells
+      logical 	    				:: unique
+      real(dblprec) 				:: bqfull11_tmp(3,3)
+      real(dblprec) 				:: tol, norm
+      real(dblprec), dimension(3) 	:: r_tmp, r_red
+
+      ! Set tolerance for neighbour shells
+      tol=1.0d-5
+
+      open(ifileno, file=ham_inp%bqfull11file) 
+      !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+      call read_exchange_getMaxNoShells(no_shells,flines)
+      ham_inp%max_no_shells_bqfull11 = no_shells
+
+
+      !Allocate variables
+      !Coordinates of the vectors connecting the atoms of the exchange
+      allocate(ham_inp%bqfull11_redcoord(NT,ham_inp%max_no_shells_bqfull11,3),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull11_redcoord))*kind(ham_inp%bqfull11_redcoord),'bqfull11_redcoord','read_bqfull11')
+      ham_inp%bqfull11_redcoord  = 0.0_dblprec
+
+      !Values of the exchange tensor for the atom pairs
+      allocate(ham_inp%bqfull11_tens(3,3,NT,ham_inp%max_no_shells_bqfull11,Nchmax,Nchmax),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull11_tens))*kind(ham_inp%bqfull11_tens),'bqfull11_tens','read_bqfull11')
+      ham_inp%bqfull11_tens = 0.0_dblprec
+
+      !Number of atoms (neighbours), each atom is having exchange interactions with
+      allocate(ham_inp%bqfull11_nn(NT),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull11_nn))*kind(ham_inp%bqfull11_nn),'bqfull11_nn','read_bqfull11')
+      ham_inp%bqfull11_nn  = 0.0_dblprec
+
+
+      ! Read exchange vectors
+      ! Isite, Jsite, Ichem, Jchem
+      do iline=1, flines
+         if(do_ralloy==0) then !we drop the 'if(tensor_format)' from the exchange, since the bq term always has to be tensorial.
+            read(ifileno,*) isite,jsite,r_tmp(1:3),bqfull11_tmp
+			bqfull11_tmp = transpose(bqfull11_tmp)
+			ichem = 1
+			jchem = 1
+         else
+			call ErrorHandling_ERROR('Random alloy treatment is currently disabled for '//char(13)//char(11)//char(0)// &
+			' reading biquadratic interaction 1 from file')
+         end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1 !atype_inp(jsite)
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+		 unique=.true.
+		 do ishell=1,ham_inp%bqfull11_nn(itype)
+            norm=(r_red(1)-ham_inp%bqfull11_redcoord(itype,ishell,1))**2+ &
+				(r_red(2)-ham_inp%bqfull11_redcoord(itype,ishell,2))**2+ &
+				(r_red(3)-ham_inp%bqfull11_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				ham_inp%bqfull11_tens(1:3,1:3,itype,ishell,ichem,jtype)=bqfull11_tmp(1:3,1:3)
+			end if
+		 end do
+		 if (unique.or.ham_inp%map_multiple) then
+			ham_inp%bqfull11_nn(itype)=ham_inp%bqfull11_nn(itype)+1
+			ham_inp%bqfull11_redcoord(itype,ham_inp%bqfull11_nn(itype),1:3)=r_red(1:3)
+			ham_inp%bqfull11_tens(1:3,1:3,itype,ishell,ichem,jtype)=bqfull11_tmp(1:3,1:3)
+		 end if
+      enddo
+      !close (ifileno)
+
+      ham_inp%max_no_shells_bqfull11=maxval(ham_inp%bqfull11_nn)
+      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull11_redcoord,nt,ham_inp%max_no_shells_bqfull11)
+      call read_exchange_reduceCouplingMatrixSizeTensor(ham_inp%bqfull11_tens,nt,ham_inp%max_no_shells_bqfull11,nchmax)
+
+      close (ifileno)
+   end subroutine read_bqfull11
+   
+   
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull21
+   !> @brief Read the variables for the biquadratic 4spin-2site H21 interaction
+   !---------------------------------------------------------------------------------   
+   subroutine read_bqfull21()
+      !
+      implicit none
+      !
+      integer		  				::  i_stat
+	  integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
+	  integer       				:: flines,no_shells
+	  logical 	  					:: unique
+	  real(dblprec) 				:: bqfull21_tmp	!now a scalar
+	  real(dblprec)					:: tol, norm
+	  real(dblprec), dimension(3) 	:: r_tmp, r_red
+	
+	  ! Set tolerance for neighbour shells
+	  tol=1.0d-5
+
+	  open(ifileno, file=ham_inp%bqfull21file) 
+	  !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+	  call read_exchange_getMaxNoShells(no_shells,flines)
+	  ham_inp%max_no_shells_bqfull21 = no_shells
+	
+	  !Allocate variables
+	  !Coordinates of the vectors connecting the atoms of the exchange
+	  allocate(ham_inp%bqfull21_redcoord(NT,ham_inp%max_no_shells_bqfull21,3),stat=i_stat)
+	  call memocc(i_stat,product(shape(ham_inp%bqfull21_redcoord))*kind(ham_inp%bqfull21_redcoord),'bqfull21_redcoord','read_bqfull21')
+	  ham_inp%bqfull21_redcoord  = 0.0_dblprec
+	
+	  !Values of the exchange tensor for the atom pairs
+	  allocate(ham_inp%bqfull21(NT,ham_inp%max_no_shells_bqfull21,Nchmax,Nchmax),stat=i_stat)
+	  call memocc(i_stat,product(shape(ham_inp%bqfull21))*kind(ham_inp%bqfull21),'bqfull21','read_bqfull21')
+	  ham_inp%bqfull21 = 0.0_dblprec
+	
+	  !Number of atoms (neighbours), each atom is haing exchange interactions with
+	  allocate(ham_inp%bqfull21_nn(NT),stat=i_stat)
+	  call memocc(i_stat,product(shape(ham_inp%bqfull21_nn))*kind(ham_inp%bqfull21_nn),'bqfull21_nn','read_bqfull21')
+	  ham_inp%bqfull21_nn  = 0.0_dblprec
+	  
+	  ! Read exchange vectors
+	  ! Isite, Jsite, Ichem, Jchem
+	  do iline=1, flines
+         if(do_ralloy==0) then !we drop the 'if(tensor_format)' from the exchange, since the bq term always has to be tensorial.
+            read(ifileno,*) isite,jsite,r_tmp(1:3),bqfull21_tmp
+			ichem = 1
+			jchem = 1
+		 else
+			call ErrorHandling_ERROR('Random alloy treatment is currently disabled for '//char(13)//char(11)//char(0)// &
+			' reading biquadratic interaction 1 from file')
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1 !atype_inp(jsite)
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+		 unique=.true.
+		 do ishell=1,ham_inp%bqfull21_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull21_redcoord(itype,ishell,1))**2+ &
+				(r_red(2)-ham_inp%bqfull21_redcoord(itype,ishell,2))**2+ &
+				(r_red(3)-ham_inp%bqfull21_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				ham_inp%bqfull21(itype,ishell,ichem,jtype)=bqfull21_tmp
+			end if
+		 end do
+		 if (unique.or.ham_inp%map_multiple) then
+			ham_inp%bqfull21_nn(itype)=ham_inp%bqfull21_nn(itype)+1
+			ham_inp%bqfull21_redcoord(itype,ham_inp%bqfull21_nn(itype),1:3)=r_red(1:3)
+			ham_inp%bqfull21(itype,ham_inp%bqfull21_nn(itype),ichem,jtype)=bqfull21_tmp
+		 end if
+      enddo
+	  !close (ifileno)
+
+	  ham_inp%max_no_shells_bqfull21=maxval(ham_inp%bqfull21_nn)
+	  !call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull21_redcoord,nt,ham_inp%max_no_shells_bqfull21)
+	  !call read_exchange_reduceCouplingMatrixSizeTensor(ham_inp%bqfull21,nt,ham_inp%max_no_shells_bqfull21,nchmax)
+
+	  close (ifileno)
+   end subroutine read_bqfull21
+   
+   
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull22
+   !> @brief Read the variables for the biquadratic 4spin-2site H22 interaction
+   !---------------------------------------------------------------------------------   
+   subroutine read_bqfull22()
+      !
+      implicit none
+      !
+      integer		  				::  i_stat
+      integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
+      integer       				:: flines,no_shells
+      logical 	  					:: unique
+      real(dblprec) 				:: bqfull22_tmp(3,3)
+      real(dblprec)					:: tol, norm
+      real(dblprec), dimension(3) 	:: r_tmp, r_red
+	
+      ! Set tolerance for neighbour shells
+      tol=1.0d-5
+
+      open(ifileno, file=ham_inp%bqfull22file) 
+      !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+      call read_exchange_getMaxNoShells(no_shells,flines)
+      ham_inp%max_no_shells_bqfull22 = no_shells
+	
+	
+      !Allocate variables
+      !Coordinates of the vectors connecting the atoms of the exchange
+      allocate(ham_inp%bqfull22_redcoord(NT,ham_inp%max_no_shells_bqfull22,3),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull22_redcoord))*kind(ham_inp%bqfull22_redcoord),'bqfull22_redcoord','read_bqfull22')
+      ham_inp%bqfull22_redcoord  = 0.0_dblprec
+
+      !Values of the exchange tensor for the atom pairs
+      allocate(ham_inp%bqfull22_tens(3,3,NT,ham_inp%max_no_shells_bqfull22,Nchmax,Nchmax),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull22_tens))*kind(ham_inp%bqfull22_tens),'bqfull22_tens','read_bqfull22')
+      ham_inp%bqfull22_tens = 0.0_dblprec
+	
+      !Number of atoms (neighbours), each atom is haing exchange interactions with
+      allocate(ham_inp%bqfull22_nn(NT),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull22_nn))*kind(ham_inp%bqfull22_nn),'bqfull22_nn','read_bqfull22')
+      ham_inp%bqfull22_nn  = 0.0_dblprec
+
+
+      ! Read exchange vectors
+      ! Isite, Jsite, Ichem, Jchem
+      do iline=1, flines
+		 if(do_ralloy==0) then !we drop the 'if(tensor_format)' from the exchange, since the bq term always has to be tensorial.
+			read(ifileno,*) isite,jsite,r_tmp(1:3),bqfull22_tmp
+			bqfull22_tmp = transpose(bqfull22_tmp)
+			ichem = 1
+			jchem = 1
+		 else
+			call ErrorHandling_ERROR('Random alloy treatment is currently disabled for '//char(13)//char(11)//char(0)// &
+			' reading biquadratic interaction 1 from file')
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1 !atype_inp(jsite)
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+         unique=.true.
+		 do ishell=1,ham_inp%bqfull22_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull22_redcoord(itype,ishell,1))**2+ &
+				(r_red(2)-ham_inp%bqfull22_redcoord(itype,ishell,2))**2+ &
+				(r_red(3)-ham_inp%bqfull22_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				ham_inp%bqfull22_tens(1:3,1:3,itype,ishell,ichem,jtype)=bqfull22_tmp(1:3,1:3)
+			end if
+		 end do
+		 if (unique.or.ham_inp%map_multiple) then
+			ham_inp%bqfull22_nn(itype)=ham_inp%bqfull22_nn(itype)+1
+			ham_inp%bqfull22_redcoord(itype,ham_inp%bqfull22_nn(itype),1:3)=r_red(1:3)
+            ham_inp%bqfull22_tens(1:3,1:3,itype,ishell,ichem,jtype)=bqfull22_tmp(1:3,1:3)
+         end if
+      enddo
+      !close (ifileno)
+
+      ham_inp%max_no_shells_bqfull22=maxval(ham_inp%bqfull22_nn)
+      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull22_redcoord,nt,ham_inp%max_no_shells_bqfull22)
+      call read_exchange_reduceCouplingMatrixSizeTensor(ham_inp%bqfull22_tens,nt,ham_inp%max_no_shells_bqfull22,nchmax)
+
+      close (ifileno)
+   end subroutine read_bqfull22
+
+
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull23
+   !> @brief Read the variables for the biquadratic 4spin-2site H23 interaction
+   !--------------------------------------------------------------------------------- 
+   subroutine read_bqfull23()
+      !
+      implicit none
+      !
+      integer :: flines, isite, i_stat, jsite
+      !integer :: flines_clus, isite_c, jsite_c
+      integer :: itype, jtype, ichem, jchem, iline, ishell
+      !integer :: itype_clus, jtype_clus, ichem_c, jchem_c
+      logical :: unique
+      real(dblprec), dimension(3) :: bqfull23_tmp!,bqfull23_clus
+      real(dblprec):: tol, norm
+      real(dblprec), dimension(3) :: r_tmp, r_red!, r_tmp_clus,r_red_clus
+      integer :: no_shells!, no_shells_clus
+
+      !integer :: ifileno2
+      !For now CLUSTER option is not available
+
+      ! Set tolerance for neighbour shells
+      tol=1.0d-5
+	
+      !ifileno2=ifileno+1
+      open(ifileno, file=ham_inp%bqfull23file)
+	
+      !***** if cluster == Y -> these will have t be indented one more (they are our else conditions)
+      !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+      call read_exchange_getMaxNoShells(no_shells,flines)
+      ham_inp%max_no_shells_bqfull23 = no_shells
+	
+      !Coordinates of the vectors connecting the atoms of the exchange
+      allocate(ham_inp%bqfull23_redcoord(NT,ham_inp%max_no_shells_bqfull23,3),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull23_redcoord))*kind(ham_inp%bqfull23_redcoord),'bqfull23_redcoord','read_bqfull23')
+      ham_inp%bqfull23_redcoord  = 0.0_dblprec
+	
+      !Values of the exchange vectors for the atom pairs
+      allocate(ham_inp%bqfull23_vec(3,NT,ham_inp%max_no_shells_bqfull23,Nchmax,Nchmax),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull23_vec))*kind(ham_inp%bqfull23_vec),'bqfull23_vec','read_bqfull23')
+      ham_inp%bqfull23_vec = 0.0_dblprec
+      !*****
+	
+	
+      ! Read exchange vectors
+      ! Isite, Jsite, Ichem, Jchem
+      do iline=1, flines
+
+         ! Read indices and coordinates
+		 if(do_ralloy==0) then
+			read (ifileno,*) isite, jsite, r_tmp, bqfull23_tmp
+			ichem=1
+			jchem=1
+		 else
+			read (ifileno,*) isite, jsite, ichem, jchem, r_tmp, bqfull23_tmp
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+		 unique=.true.
+		 do ishell=1,ham_inp%bqfull23_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull23_redcoord(itype,ishell,1))**2+ &
+				 (r_red(2)-ham_inp%bqfull23_redcoord(itype,ishell,2))**2+ &
+				 (r_red(3)-ham_inp%bqfull23_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				if(do_ralloy==0) then
+					ham_inp%bqfull23_vec(1:3,itype,ishell,ichem,jtype)=bqfull23_tmp
+				else
+					ham_inp%bqfull23_vec(1:3,itype,ishell,ichem,jchem)=bqfull23_tmp
+				end if
+			end if
+		 end do
+		 if (unique) then
+			ham_inp%bqfull23_nn(itype)=ham_inp%bqfull23_nn(itype)+1
+			ham_inp%bqfull23_redcoord(itype,ham_inp%bqfull23_nn(itype),1:3)=r_red(1:3)
+			if(do_ralloy==0) then
+				ham_inp%bqfull23_vec(1:3,itype,ham_inp%bqfull23_nn(itype),ichem,1)=bqfull23_tmp
+			else
+				ham_inp%bqfull23_vec(1:3,itype,ham_inp%bqfull23_nn(itype),ichem,jchem)=bqfull23_tmp
+			end if
+		 end if
+      enddo
+      ham_inp%max_no_shells_bqfull23=maxval(ham_inp%bqfull23_nn)
+      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull23_redcoord,nt,ham_inp%max_no_shells_bqfull23)
+      call read_dmexchange_reduceCouplingMatrixSize(ham_inp%bqfull23_vec,nt,ham_inp%max_no_shells_bqfull23,nchmax)
+      close (ifileno)
+   end subroutine read_bqfull23
+
+
+  
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull31
+   !> @brief Read the variables for the biquadratic 4spin-2site H31 interaction
+   !---------------------------------------------------------------------------------   
+   subroutine read_bqfull31()
+      !
+      implicit none
+      !
+      integer		  				::  i_stat
+	  integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
+	  integer       				:: flines,no_shells
+	  logical 	  					:: unique
+	  real(dblprec) 				:: bqfull31_tmp	!now a scalar
+	  real(dblprec)					:: tol, norm
+	  real(dblprec), dimension(3) 	:: r_tmp, r_red
+	
+	  ! Set tolerance for neighbour shells
+	  tol=1.0d-5
+
+	  open(ifileno, file=ham_inp%bqfull31file) 
+	  !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+	  call read_exchange_getMaxNoShells(no_shells,flines)
+	  ham_inp%max_no_shells_bqfull31 = no_shells
+	
+	  !Allocate variables
+	  !Coordinates of the vectors connecting the atoms of the exchange
+	  allocate(ham_inp%bqfull31_redcoord(NT,ham_inp%max_no_shells_bqfull31,3),stat=i_stat)
+	  call memocc(i_stat,product(shape(ham_inp%bqfull31_redcoord))*kind(ham_inp%bqfull31_redcoord),'bqfull31_redcoord','read_bqfull31')
+	  ham_inp%bqfull31_redcoord  = 0.0_dblprec
+	
+	  !Values of the exchange tensor for the atom pairs
+	  allocate(ham_inp%bqfull31(NT,ham_inp%max_no_shells_bqfull31,Nchmax,Nchmax),stat=i_stat)
+	  call memocc(i_stat,product(shape(ham_inp%bqfull31))*kind(ham_inp%bqfull31),'bqfull31','read_bqfull31')
+	  ham_inp%bqfull31 = 0.0_dblprec
+	
+	  !Number of atoms (neighbours), each atom is haing exchange interactions with
+	  allocate(ham_inp%bqfull31_nn(NT),stat=i_stat)
+	  call memocc(i_stat,product(shape(ham_inp%bqfull31_nn))*kind(ham_inp%bqfull31_nn),'bqfull31_nn','read_bqfull31')
+	  ham_inp%bqfull31_nn  = 0.0_dblprec
+	  
+	  ! Read exchange vectors
+	  ! Isite, Jsite, Ichem, Jchem
+	  do iline=1, flines
+         if(do_ralloy==0) then !we drop the 'if(tensor_format)' from the exchange, since the bq term always has to be tensorial.
+            read(ifileno,*) isite,jsite,r_tmp(1:3),bqfull31_tmp
+			ichem = 1
+			jchem = 1
+		 else
+			call ErrorHandling_ERROR('Random alloy treatment is currently disabled for '//char(13)//char(11)//char(0)// &
+			' reading biquadratic interaction 1 from file')
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1 !atype_inp(jsite)
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+		 unique=.true.
+		 do ishell=1,ham_inp%bqfull31_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull31_redcoord(itype,ishell,1))**2+ &
+				(r_red(2)-ham_inp%bqfull31_redcoord(itype,ishell,2))**2+ &
+				(r_red(3)-ham_inp%bqfull31_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				ham_inp%bqfull31(itype,ishell,ichem,jtype)=bqfull31_tmp
+			end if
+		 end do
+		 if (unique.or.ham_inp%map_multiple) then
+			ham_inp%bqfull31_nn(itype)=ham_inp%bqfull31_nn(itype)+1
+			ham_inp%bqfull31_redcoord(itype,ham_inp%bqfull31_nn(itype),1:3)=r_red(1:3)
+			ham_inp%bqfull31(itype,ham_inp%bqfull31_nn(itype),ichem,jtype)=bqfull31_tmp
+		 end if
+      enddo
+	  !close (ifileno)
+
+	  ham_inp%max_no_shells_bqfull31=maxval(ham_inp%bqfull31_nn)
+	  !call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull21_redcoord,nt,ham_inp%max_no_shells_bqfull21)
+	  !call read_exchange_reduceCouplingMatrixSizeTensor(ham_inp%bqfull21,nt,ham_inp%max_no_shells_bqfull21,nchmax)
+
+	  close (ifileno)
+   end subroutine read_bqfull31
+   
+   
+   
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull32
+   !> @brief Read the variables for the biquadratic 4spin-2site H32 interaction
+   !---------------------------------------------------------------------------------   
+   subroutine read_bqfull32()
+      !
+      implicit none
+      !
+      integer		  				::  i_stat
+      integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
+      integer       				:: flines,no_shells
+      logical 	  					:: unique
+      real(dblprec) 				:: bqfull32_tmp(3,3)
+      real(dblprec)					:: tol, norm
+      real(dblprec), dimension(3) 	:: r_tmp, r_red
+	
+      ! Set tolerance for neighbour shells
+      tol=1.0d-5
+
+      open(ifileno, file=ham_inp%bqfull32file) 
+      !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+      call read_exchange_getMaxNoShells(no_shells,flines)
+      ham_inp%max_no_shells_bqfull32 = no_shells
+	
+	
+      !Allocate variables
+      !Coordinates of the vectors connecting the atoms of the exchange
+      allocate(ham_inp%bqfull32_redcoord(NT,ham_inp%max_no_shells_bqfull32,3),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull32_redcoord))*kind(ham_inp%bqfull32_redcoord),'bqfull32_redcoord','read_bqfull32')
+      ham_inp%bqfull32_redcoord  = 0.0_dblprec
+
+      !Values of the exchange tensor for the atom pairs
+      allocate(ham_inp%bqfull32_tens(3,3,NT,ham_inp%max_no_shells_bqfull32,Nchmax,Nchmax),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull32_tens))*kind(ham_inp%bqfull32_tens),'bqfull32_tens','read_bqfull32')
+      ham_inp%bqfull32_tens = 0.0_dblprec
+	
+      !Number of atoms (neighbours), each atom is haing exchange interactions with
+      allocate(ham_inp%bqfull32_nn(NT),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull32_nn))*kind(ham_inp%bqfull32_nn),'bqfull32_nn','read_bqfull32')
+      ham_inp%bqfull32_nn  = 0.0_dblprec
+
+
+      ! Read exchange vectors
+      ! Isite, Jsite, Ichem, Jchem
+      do iline=1, flines
+		 if(do_ralloy==0) then !we drop the 'if(tensor_format)' from the exchange, since the bq term always has to be tensorial.
+			read(ifileno,*) isite,jsite,r_tmp(1:3),bqfull32_tmp
+			bqfull32_tmp = transpose(bqfull32_tmp)
+			ichem = 1
+			jchem = 1
+		 else
+			call ErrorHandling_ERROR('Random alloy treatment is currently disabled for '//char(13)//char(11)//char(0)// &
+			' reading biquadratic interaction 1 from file')
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1 !atype_inp(jsite)
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+         unique=.true.
+		 do ishell=1,ham_inp%bqfull32_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull32_redcoord(itype,ishell,1))**2+ &
+				(r_red(2)-ham_inp%bqfull32_redcoord(itype,ishell,2))**2+ &
+				(r_red(3)-ham_inp%bqfull32_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				ham_inp%bqfull32_tens(1:3,1:3,itype,ishell,ichem,jtype)=bqfull32_tmp(1:3,1:3)
+			end if
+		 end do
+		 if (unique.or.ham_inp%map_multiple) then
+			ham_inp%bqfull32_nn(itype)=ham_inp%bqfull32_nn(itype)+1
+			ham_inp%bqfull32_redcoord(itype,ham_inp%bqfull32_nn(itype),1:3)=r_red(1:3)
+            ham_inp%bqfull32_tens(1:3,1:3,itype,ishell,ichem,jtype)=bqfull32_tmp(1:3,1:3)
+         end if
+      enddo
+      !close (ifileno)
+
+      ham_inp%max_no_shells_bqfull32=maxval(ham_inp%bqfull32_nn)
+      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull32_redcoord,nt,ham_inp%max_no_shells_bqfull32)
+      call read_exchange_reduceCouplingMatrixSizeTensor(ham_inp%bqfull32_tens,nt,ham_inp%max_no_shells_bqfull32,nchmax)
+
+      close (ifileno)
+   end subroutine read_bqfull32
+  
+   
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull33
+   !> @brief Read the variables for the biquadratic 4spin-2site H33 interaction
+   !---------------------------------------------------------------------------------   
+   subroutine read_bqfull33()
+      !
+      implicit none
+      !
+      integer		  				::  i_stat
+      integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
+      integer       				:: flines,no_shells
+      logical 	  					:: unique
+      real(dblprec) 				:: bqfull33_tmp(3,3)
+      real(dblprec)					:: tol, norm
+      real(dblprec), dimension(3) 	:: r_tmp, r_red
+	
+      ! Set tolerance for neighbour shells
+      tol=1.0d-5
+
+      open(ifileno, file=ham_inp%bqfull33file) 
+      !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+      call read_exchange_getMaxNoShells(no_shells,flines)
+      ham_inp%max_no_shells_bqfull33 = no_shells
+	
+	
+      !Allocate variables
+      !Coordinates of the vectors connecting the atoms of the exchange
+      allocate(ham_inp%bqfull33_redcoord(NT,ham_inp%max_no_shells_bqfull33,3),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull33_redcoord))*kind(ham_inp%bqfull33_redcoord),'bqfull33_redcoord','read_bqfull33')
+      ham_inp%bqfull33_redcoord  = 0.0_dblprec
+
+      !Values of the exchange tensor for the atom pairs
+      allocate(ham_inp%bqfull33_tens(3,3,NT,ham_inp%max_no_shells_bqfull33,Nchmax,Nchmax),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull33_tens))*kind(ham_inp%bqfull33_tens),'bqfull33_tens','read_bqfull33')
+      ham_inp%bqfull33_tens = 0.0_dblprec
+	
+      !Number of atoms (neighbours), each atom is haing exchange interactions with
+      allocate(ham_inp%bqfull33_nn(NT),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull33_nn))*kind(ham_inp%bqfull33_nn),'bqfull33_nn','read_bqfull33')
+      ham_inp%bqfull33_nn  = 0.0_dblprec
+
+
+      ! Read exchange vectors
+      ! Isite, Jsite, Ichem, Jchem
+      do iline=1, flines
+		 if(do_ralloy==0) then !we drop the 'if(tensor_format)' from the exchange, since the bq term always has to be tensorial.
+			read(ifileno,*) isite,jsite,r_tmp(1:3),bqfull33_tmp
+			bqfull33_tmp = transpose(bqfull33_tmp)
+			ichem = 1
+			jchem = 1
+		 else
+			call ErrorHandling_ERROR('Random alloy treatment is currently disabled for '//char(13)//char(11)//char(0)// &
+			' reading biquadratic interaction 1 from file')
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1 !atype_inp(jsite)
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+         unique=.true.
+		 do ishell=1,ham_inp%bqfull33_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull33_redcoord(itype,ishell,1))**2+ &
+				(r_red(2)-ham_inp%bqfull33_redcoord(itype,ishell,2))**2+ &
+				(r_red(3)-ham_inp%bqfull33_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				ham_inp%bqfull33_tens(1:3,1:3,itype,ishell,ichem,jtype)=bqfull33_tmp(1:3,1:3)
+			end if
+		 end do
+		 if (unique.or.ham_inp%map_multiple) then
+			ham_inp%bqfull33_nn(itype)=ham_inp%bqfull33_nn(itype)+1
+			ham_inp%bqfull33_redcoord(itype,ham_inp%bqfull33_nn(itype),1:3)=r_red(1:3)
+            ham_inp%bqfull33_tens(1:3,1:3,itype,ishell,ichem,jtype)=bqfull33_tmp(1:3,1:3)
+         end if
+      enddo
+      !close (ifileno)
+
+      ham_inp%max_no_shells_bqfull33=maxval(ham_inp%bqfull33_nn)
+      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull33_redcoord,nt,ham_inp%max_no_shells_bqfull33)
+      call read_exchange_reduceCouplingMatrixSizeTensor(ham_inp%bqfull33_tens,nt,ham_inp%max_no_shells_bqfull33,nchmax)
+
+      close (ifileno)
+   end subroutine read_bqfull33   
+   
+
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull34
+   !> @brief Read the variables for the biquadratic 4spin-2site H34 interaction
+   !--------------------------------------------------------------------------------- 
+   subroutine read_bqfull34()
+      !
+      implicit none
+      !
+      integer :: flines, isite, i_stat, jsite
+      !integer :: flines_clus, isite_c, jsite_c
+      integer :: itype, jtype, ichem, jchem, iline, ishell
+      !integer :: itype_clus, jtype_clus, ichem_c, jchem_c
+      logical :: unique
+      real(dblprec), dimension(3) :: bqfull34_tmp!,bqfull34_clus
+      real(dblprec):: tol, norm
+      real(dblprec), dimension(3) :: r_tmp, r_red!, r_tmp_clus,r_red_clus
+      integer :: no_shells!, no_shells_clus
+
+      !integer :: ifileno2
+      !For now CLUSTER option is not available
+
+      ! Set tolerance for neighbour shells
+      tol=1.0d-5
+	
+      !ifileno2=ifileno+1
+      open(ifileno, file=ham_inp%bqfull34file)
+	
+      !***** if cluster == Y -> these will have t be indented one more (they are our else conditions)
+      !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+      call read_exchange_getMaxNoShells(no_shells,flines)
+      ham_inp%max_no_shells_bqfull34 = no_shells
+	
+      !Coordinates of the vectors connecting the atoms of the exchange
+      allocate(ham_inp%bqfull34_redcoord(NT,ham_inp%max_no_shells_bqfull34,3),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull34_redcoord))*kind(ham_inp%bqfull34_redcoord),'bqfull34_redcoord','read_bqfull34')
+      ham_inp%bqfull34_redcoord  = 0.0_dblprec
+	
+      !Values of the exchange vectors for the atom pairs
+      allocate(ham_inp%bqfull34_vec(3,NT,ham_inp%max_no_shells_bqfull34,Nchmax,Nchmax),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull34_vec))*kind(ham_inp%bqfull34_vec),'bqfull34_vec','read_bqfull34')
+      ham_inp%bqfull34_vec = 0.0_dblprec
+      !*****
+	
+	
+      ! Read exchange vectors
+      ! Isite, Jsite, Ichem, Jchem
+      do iline=1, flines
+
+         ! Read indices and coordinates
+		 if(do_ralloy==0) then
+			read (ifileno,*) isite, jsite, r_tmp, bqfull34_tmp
+			ichem=1
+			jchem=1
+		 else
+			read (ifileno,*) isite, jsite, ichem, jchem, r_tmp, bqfull34_tmp
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+		 unique=.true.
+		 do ishell=1,ham_inp%bqfull34_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull34_redcoord(itype,ishell,1))**2+ &
+				 (r_red(2)-ham_inp%bqfull34_redcoord(itype,ishell,2))**2+ &
+				 (r_red(3)-ham_inp%bqfull34_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				if(do_ralloy==0) then
+					ham_inp%bqfull34_vec(1:3,itype,ishell,ichem,jtype)=bqfull34_tmp
+				else
+					ham_inp%bqfull34_vec(1:3,itype,ishell,ichem,jchem)=bqfull34_tmp
+				end if
+			end if
+		 end do
+		 if (unique) then
+			ham_inp%bqfull34_nn(itype)=ham_inp%bqfull34_nn(itype)+1
+			ham_inp%bqfull34_redcoord(itype,ham_inp%bqfull34_nn(itype),1:3)=r_red(1:3)
+			if(do_ralloy==0) then
+				ham_inp%bqfull34_vec(1:3,itype,ham_inp%bqfull34_nn(itype),ichem,1)=bqfull34_tmp
+			else
+				ham_inp%bqfull34_vec(1:3,itype,ham_inp%bqfull34_nn(itype),ichem,jchem)=bqfull34_tmp
+			end if
+		 end if
+      enddo
+      ham_inp%max_no_shells_bqfull34=maxval(ham_inp%bqfull34_nn)
+      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull34_redcoord,nt,ham_inp%max_no_shells_bqfull34)
+      call read_dmexchange_reduceCouplingMatrixSize(ham_inp%bqfull34_vec,nt,ham_inp%max_no_shells_bqfull34,nchmax)
+      close (ifileno)
+   end subroutine read_bqfull34
+
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull35
+   !> @brief Read the variables for the biquadratic 4spin-2site H35 interaction
+   !---------------------------------------------------------------------------------   
+   subroutine read_bqfull35()
+      !
+      implicit none
+      !
+      integer		  				::  i_stat
+      integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
+      integer       				:: flines,no_shells
+      logical 	  					:: unique
+      real(dblprec) 				:: bqfull35_tmp(3,3,3)
+      real(dblprec)					:: tol, norm
+      real(dblprec), dimension(3) 	:: r_tmp, r_red
+	
+      ! Set tolerance for neighbour shells
+      tol=1.0d-5
+
+      open(ifileno, file=ham_inp%bqfull35file) 
+      !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+      call read_exchange_getMaxNoShells(no_shells,flines)
+      ham_inp%max_no_shells_bqfull35 = no_shells
+	
+	
+      !Allocate variables
+      !Coordinates of the vectors connecting the atoms of the exchange
+      allocate(ham_inp%bqfull35_redcoord(NT,ham_inp%max_no_shells_bqfull35,3),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull35_redcoord))*kind(ham_inp%bqfull35_redcoord),'bqfull35_redcoord','read_bqfull35')
+      ham_inp%bqfull35_redcoord  = 0.0_dblprec
+
+      !Values of the exchange tensor for the atom pairs
+      allocate(ham_inp%bqfull35_3tens(3,3,3,NT,ham_inp%max_no_shells_bqfull35,Nchmax,Nchmax),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull35_3tens))*kind(ham_inp%bqfull35_3tens),'bqfull35_3tens','read_bqfull35')
+      ham_inp%bqfull35_3tens = 0.0_dblprec
+	
+      !Number of atoms (neighbours), each atom is haing exchange interactions with
+      allocate(ham_inp%bqfull35_nn(NT),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull35_nn))*kind(ham_inp%bqfull35_nn),'bqfull35_nn','read_bqfull35')
+      ham_inp%bqfull35_nn  = 0.0_dblprec
+
+
+      ! Read exchange vectors
+      ! Isite, Jsite, Ichem, Jchem
+      do iline=1, flines
+		 if(do_ralloy==0) then !we drop the 'if(tensor_format)' from the exchange, since the bq term always has to be tensorial.
+			read(ifileno,*) isite,jsite,r_tmp(1:3),bqfull35_tmp
+			!bqfull33_tmp = transpose(bqfull33_tmp)
+			ichem = 1
+			jchem = 1
+		 else
+			call ErrorHandling_ERROR('Random alloy treatment is currently disabled for '//char(13)//char(11)//char(0)// &
+			' reading biquadratic interaction 1 from file')
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1 !atype_inp(jsite)
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+         unique=.true.
+		 do ishell=1,ham_inp%bqfull35_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull35_redcoord(itype,ishell,1))**2+ &
+				(r_red(2)-ham_inp%bqfull35_redcoord(itype,ishell,2))**2+ &
+				(r_red(3)-ham_inp%bqfull35_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				ham_inp%bqfull35_3tens(1:3,1:3,1:3,itype,ishell,ichem,jtype)=bqfull35_tmp(1:3,1:3,1:3)
+			end if
+		 end do
+		 if (unique.or.ham_inp%map_multiple) then
+			ham_inp%bqfull35_nn(itype)=ham_inp%bqfull35_nn(itype)+1
+			ham_inp%bqfull35_redcoord(itype,ham_inp%bqfull35_nn(itype),1:3)=r_red(1:3)
+            ham_inp%bqfull35_3tens(1:3,1:3,1:3,itype,ishell,ichem,jtype)=bqfull35_tmp(1:3,1:3,1:3)
+         end if
+      enddo
+      !close (ifileno)
+
+      ham_inp%max_no_shells_bqfull35=maxval(ham_inp%bqfull35_nn)
+      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull35_redcoord,nt,ham_inp%max_no_shells_bqfull35)
+      !call read_exchange_reduceCouplingMatrixSizeTensor(ham_inp%bqfull35_3tens,nt,ham_inp%max_no_shells_bqfull35,nchmax)
+
+      close (ifileno)
+   end subroutine read_bqfull35
+
+
+   !---------------------------------------------------------------------------------
+   ! SUBROUTINE: read_bqfull36
+   !> @brief Read the variables for the biquadratic 4spin-2site H36 interaction
+   !---------------------------------------------------------------------------------   
+   subroutine read_bqfull36()
+      !
+      implicit none
+      !
+      integer		  				::  i_stat
+      integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
+      integer       				:: flines,no_shells
+      logical 	  					:: unique
+      real(dblprec) 				:: bqfull36_tmp(3,3,3)
+      real(dblprec)					:: tol, norm
+      real(dblprec), dimension(3) 	:: r_tmp, r_red
+	
+      ! Set tolerance for neighbour shells
+      tol=1.0d-5
+
+      open(ifileno, file=ham_inp%bqfull36file) 
+      !Find from the file the max number of interactions for any of the described atoms in the bqfullfile 
+      call read_exchange_getMaxNoShells(no_shells,flines)
+      ham_inp%max_no_shells_bqfull36 = no_shells
+	
+	
+      !Allocate variables
+      !Coordinates of the vectors connecting the atoms of the exchange
+      allocate(ham_inp%bqfull36_redcoord(NT,ham_inp%max_no_shells_bqfull36,3),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull36_redcoord))*kind(ham_inp%bqfull36_redcoord),'bqfull36_redcoord','read_bqfull36')
+      ham_inp%bqfull36_redcoord  = 0.0_dblprec
+
+      !Values of the exchange tensor for the atom pairs
+      allocate(ham_inp%bqfull36_3tens(3,3,3,NT,ham_inp%max_no_shells_bqfull36,Nchmax,Nchmax),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull36_3tens))*kind(ham_inp%bqfull36_3tens),'bqfull36_3tens','read_bqfull36')
+      ham_inp%bqfull36_3tens = 0.0_dblprec
+	
+      !Number of atoms (neighbours), each atom is haing exchange interactions with
+      allocate(ham_inp%bqfull36_nn(NT),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull36_nn))*kind(ham_inp%bqfull36_nn),'bqfull36_nn','read_bqfull36')
+      ham_inp%bqfull36_nn  = 0.0_dblprec
+
+
+      ! Read exchange vectors
+      ! Isite, Jsite, Ichem, Jchem
+      do iline=1, flines
+		 if(do_ralloy==0) then !we drop the 'if(tensor_format)' from the exchange, since the bq term always has to be tensorial.
+			read(ifileno,*) isite,jsite,r_tmp(1:3),bqfull36_tmp
+			!bqfull33_tmp = transpose(bqfull33_tmp)
+			ichem = 1
+			jchem = 1
+		 else
+			call ErrorHandling_ERROR('Random alloy treatment is currently disabled for '//char(13)//char(11)//char(0)// &
+			' reading biquadratic interaction 1 from file')
+		 end if
+		 ! Find type of site
+		 itype=atype_inp(isite)
+		 jtype=1 !atype_inp(jsite)
+		 call read_exchange_getNeighVec(r_red,r_tmp,isite,jsite)
+
+		 ! Loop through earlier vectors to find equivalent shells
+         unique=.true.
+		 do ishell=1,ham_inp%bqfull36_nn(itype)
+			norm=(r_red(1)-ham_inp%bqfull36_redcoord(itype,ishell,1))**2+ &
+				(r_red(2)-ham_inp%bqfull36_redcoord(itype,ishell,2))**2+ &
+				(r_red(3)-ham_inp%bqfull36_redcoord(itype,ishell,3))**2
+			if(norm<tol) then
+				unique=.false.
+				ham_inp%bqfull36_3tens(1:3,1:3,1:3,itype,ishell,ichem,jtype)=bqfull36_tmp(1:3,1:3,1:3)
+			end if
+		 end do
+		 if (unique.or.ham_inp%map_multiple) then
+			ham_inp%bqfull36_nn(itype)=ham_inp%bqfull36_nn(itype)+1
+			ham_inp%bqfull36_redcoord(itype,ham_inp%bqfull36_nn(itype),1:3)=r_red(1:3)
+            ham_inp%bqfull36_3tens(1:3,1:3,1:3,itype,ishell,ichem,jtype)=bqfull36_tmp(1:3,1:3,1:3)
+         end if
+      enddo
+      !close (ifileno)
+
+      ham_inp%max_no_shells_bqfull36=maxval(ham_inp%bqfull36_nn)
+      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull36_redcoord,nt,ham_inp%max_no_shells_bqfull36)
+      !call read_exchange_reduceCouplingMatrixSizeTensor(ham_inp%bqfull36_3tens,nt,ham_inp%max_no_shells_bqfull36,nchmax)
+
+      close (ifileno)
+   end subroutine read_bqfull36
 
 end module InputHandler_ext
