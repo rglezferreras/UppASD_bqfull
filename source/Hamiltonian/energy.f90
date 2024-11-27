@@ -40,6 +40,17 @@ module Energy
    real(dblprec), dimension(:), allocatable :: ene_ext
    real(dblprec), dimension(:), allocatable :: ene_pair
    real(dblprec), dimension(:), allocatable :: ene_bqdm
+   !Bq terms
+   real(dblprec), dimension(:), allocatable :: ene_bqfull11
+   real(dblprec), dimension(:), allocatable :: ene_bqfull21
+   real(dblprec), dimension(:), allocatable :: ene_bqfull22
+   real(dblprec), dimension(:), allocatable :: ene_bqfull23
+   real(dblprec), dimension(:), allocatable :: ene_bqfull31
+   real(dblprec), dimension(:), allocatable :: ene_bqfull32
+   real(dblprec), dimension(:), allocatable :: ene_bqfull33
+   real(dblprec), dimension(:), allocatable :: ene_bqfull34
+   real(dblprec), dimension(:), allocatable :: ene_bqfull35
+   real(dblprec), dimension(:), allocatable :: ene_bqfull36
    ! Total energy
    real(dblprec), dimension(:), allocatable :: energy
    end type ene_t
@@ -119,14 +130,25 @@ contains
       real(dblprec) :: energy_dip
       real(dblprec) :: ene_ext_m, ene_ext_s, fcinv,fc
       real(dblprec) :: exc,edm,ebq,ering,edip,eext,epair,ebqdm,epd,eani,echir, esa
+      real(dblprec) :: ebqfull11, ebqfull21
+      real(dblprec) :: ebqfull22, ebqfull23
+      real(dblprec) :: ebqfull31, ebqfull32, ebqfull33, ebqfull34, ebqfull35, ebqfull36
       real(dblprec) :: energy_m, energy_s, ene_ani_m, ene_ani_s, ene_xc_m, ene_xc_s,ene_lsf_m,ene_lsf_s
       real(dblprec) :: ene_dm_m, ene_dm_s, ene_pd_m, ene_pd_s, ene_bqdm_m, ene_bqdm_s, ene_chir_s, ene_sa_m, ene_sa_s
       real(dblprec) :: ene_bq_m, ene_bq_s, ene_ring_s, ene_ring_m, ene_dip_m, ene_dip_s, ene_pair_m,ene_pair_s, ene_chir_m
+      real(dblprec) :: ene_bqfull11_s, ene_bqfull11_m, ene_bqfull21_s, ene_bqfull21_m
+      real(dblprec) :: ene_bqfull22_s, ene_bqfull22_m, ene_bqfull23_s, ene_bqfull23_m
+      real(dblprec) :: ene_bqfull31_s, ene_bqfull31_m, ene_bqfull32_s, ene_bqfull32_m, ene_bqfull33_s, ene_bqfull33_m, ene_bqfull34_s, ene_bqfull34_m
+      real(dblprec) :: ene_bqfull35_s, ene_bqfull35_m, ene_bqfull36_s, ene_bqfull36_m
    
       !.. Local arrays
       character(len=30) :: filn
       real(dblprec), dimension(3) :: beff_xc,beff_dm,beff_pair,beff_pd,beff_bqdm,beff_mdip, beff_chir, beff_sa
       real(dblprec), dimension(3) :: beff_bq,beff_ring,beff_dip,beff_tani,beff_ext,beff_ani,beff_cani
+      real(dblprec), dimension(3) :: beff_bqfull11, beff_bqfull21
+      real(dblprec), dimension(3) :: beff_bqfull22, beff_bqfull23
+      real(dblprec), dimension(3) :: beff_bqfull31, beff_bqfull32, beff_bqfull33, beff_bqfull34, beff_bqfull35, beff_bqfull36
+      !      
       real(dblprec), dimension(:,:,:), allocatable :: bfield_dip
       real(dblprec), dimension(:,:,:), allocatable :: site_energy
 
@@ -141,8 +163,10 @@ contains
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          ! For site-dependent energies, one large array is used. The indices are as follows:
          ! 1: Jij, 2: DM, 3: PseudoDip, 4: BiqDM, 5: BiqH, 6: Dipole, 7: Anisotropy, 8: Zeeman. 9: LSF 10: Chiral, 11:Ring
+         ! 12:Bqfull11, 13:Bqfull21, 14:Bqfull22, 15:Bqfull23, 16:Bqfull31, 17:Bqfull32, 18:Bqfull33, 19:Bqfull34, 20:Bqfull35, 21:Bqfull36
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         allocate(site_energy(11,Natom,Mensemble),stat=i_stat)
+         !allocate(site_energy(11,Natom,Mensemble),stat=i_stat)
+         allocate(site_energy(21,Natom,Mensemble),stat=i_stat)
          call memocc(i_stat,product(shape(site_energy))*kind(site_energy),'site_energy','calc_energy')
          site_energy=0.0_dblprec
       end if
@@ -180,18 +204,29 @@ contains
 
       if (do_lsf=='N') then
          do kk=1, Mensemble
-            exc   = 0.0_dblprec
-            edm   = 0.0_dblprec
-            esa   = 0.0_dblprec
-            ebq   = 0.0_dblprec
-            ering = 0.0_dblprec
-            edip  = 0.0_dblprec
-            eext  = 0.0_dblprec
-            epair = 0.0_dblprec
-            echir = 0.0_dblprec
-            ebqdm = 0.0_dblprec
-            epd   = 0.0_dblprec
-            eani  = 0.0_dblprec
+            exc   		= 0.0_dblprec
+            edm   		= 0.0_dblprec
+            esa   		= 0.0_dblprec
+            ebq   		= 0.0_dblprec
+            ering 		= 0.0_dblprec
+            edip  		= 0.0_dblprec
+            eext  		= 0.0_dblprec
+            epair 		= 0.0_dblprec
+            echir 		= 0.0_dblprec
+            ebqdm 		= 0.0_dblprec
+            epd   		= 0.0_dblprec
+            eani  		= 0.0_dblprec
+            !Bq 4-2 interactions
+            ebqfull11	= 0.0_dblprec
+            ebqfull21	= 0.0_dblprec
+            ebqfull22	= 0.0_dblprec
+            ebqfull23	= 0.0_dblprec
+            ebqfull31	= 0.0_dblprec
+            ebqfull32	= 0.0_dblprec
+            ebqfull33	= 0.0_dblprec
+            ebqfull34	= 0.0_dblprec
+            ebqfull35	= 0.0_dblprec
+            ebqfull36	= 0.0_dblprec
 
 #if ((! defined  __PATHSCALE__) || (! defined __PGIF90__)) && (!_OPENMP < 201307)
             !$omp parallel do default(shared) schedule(static) &
@@ -200,21 +235,32 @@ contains
 #endif
             do ii=start_atom, stop_atom
 
-               beff_xc     = 0.0_dblprec
-               beff_dm     = 0.0_dblprec
-               beff_sa     = 0.0_dblprec
-               beff_pd     = 0.0_dblprec
-               beff_bq     = 0.0_dblprec
-               beff_ring   = 0.0_dblprec              
-               beff_ext    = 0.0_dblprec
-               beff_dip    = 0.0_dblprec
-               beff_ani    = 0.0_dblprec
-               beff_cani   = 0.0_dblprec
-               beff_tani   = 0.0_dblprec
-               beff_pair   = 0.0_dblprec
-               beff_bqdm   = 0.0_dblprec
-               beff_mdip   = 0.0_dblprec
-               beff_chir   = 0.0_dblprec
+               beff_xc     		= 0.0_dblprec
+               beff_dm     		= 0.0_dblprec
+               beff_sa     		= 0.0_dblprec
+               beff_pd     		= 0.0_dblprec
+               beff_bq     		= 0.0_dblprec
+               beff_ring   		= 0.0_dblprec              
+               beff_ext    		= 0.0_dblprec
+               beff_dip    		= 0.0_dblprec
+               beff_ani    		= 0.0_dblprec
+               beff_cani   		= 0.0_dblprec
+               beff_tani   		= 0.0_dblprec
+               beff_pair   		= 0.0_dblprec
+               beff_bqdm   		= 0.0_dblprec
+               beff_mdip   		= 0.0_dblprec
+               beff_chir   		= 0.0_dblprec
+               !Bq 4-2 interactions
+               beff_bqfull11	= 0.0_dblprec
+               beff_bqfull21	= 0.0_dblprec
+               beff_bqfull22	= 0.0_dblprec
+               beff_bqfull23	= 0.0_dblprec
+               beff_bqfull31	= 0.0_dblprec
+               beff_bqfull32	= 0.0_dblprec
+               beff_bqfull33	= 0.0_dblprec
+               beff_bqfull34	= 0.0_dblprec
+               beff_bqfull35	= 0.0_dblprec
+               beff_bqfull36	= 0.0_dblprec
 
                if(ham_inp%do_jtensor/=1) then
                   ! Heisenberg exchange term
@@ -281,6 +327,69 @@ contains
                   echir=echir+update_ene(emomM(1:3,ii,kk),beff_chir,0.50_dblprec)
                   if(plotenergy==2) site_energy(10,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_chir,0.5_dblprec)
                endif
+               
+               !!!!!!
+               !Biquadratic 4spin-2site H11 exchange
+               if(ham_inp%do_bqfull11==1) then
+				  call bqfull11_field(ii, kk, beff_bqfull11,Natom,Mensemble,emomM)
+				  ebqfull11=ebqfull11+update_ene(emomM(1:3,ii,kk),beff_bqfull11,0.25_dblprec)
+				  if(plotenergy==2) site_energy(12,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull11,0.25_dblprec)
+			   endif
+			   ! Biquadratic 4spin-2site H21 interaction
+			   if(ham_inp%do_bqfull21==1) then
+				  call bqfull21_field(ii, kk, beff_bqfull21,Natom,Mensemble,emomM)
+				  ebqfull21=ebqfull21+update_ene(emomM(1:3,ii,kk),beff_bqfull21,0.25_dblprec)
+				  if(plotenergy==2) site_energy(13,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull21,0.25_dblprec)
+			   endif
+			   !Biquadratic 4spin-2site H22 interaction
+               if(ham_inp%do_bqfull22==1) then
+				  call bqfull22_field(ii, kk, beff_bqfull22,Natom,Mensemble,emomM)
+				  ebqfull22=ebqfull22+update_ene(emomM(1:3,ii,kk),beff_bqfull22,0.25_dblprec)
+				  if(plotenergy==2) site_energy(14,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull22,0.25_dblprec)
+			   endif
+			   !Biquadratic 4spin-2site H23 interaction
+               if(ham_inp%do_bqfull23==1) then
+				  call bqfull23_field(ii, kk, beff_bqfull23,Natom,Mensemble,emomM)
+				  ebqfull23=ebqfull23+update_ene(emomM(1:3,ii,kk),beff_bqfull23,0.25_dblprec)
+				  if(plotenergy==2) site_energy(15,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull23,0.25_dblprec)
+			   endif
+			   ! Biquadratic 4spin-2site H31 interaction
+			   if(ham_inp%do_bqfull31==1) then
+				  call bqfull31_field(ii, kk, beff_bqfull31,Natom,Mensemble,emomM)
+				  ebqfull31=ebqfull31+update_ene(emomM(1:3,ii,kk),beff_bqfull31,0.25_dblprec)
+				  if(plotenergy==2) site_energy(16,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull31,0.25_dblprec)
+			   endif
+			   !Biquadratic 4spin-2site H32 interaction
+               if(ham_inp%do_bqfull32==1) then
+				  call bqfull32_field(ii, kk, beff_bqfull32,Natom,Mensemble,emomM)
+				  ebqfull32=ebqfull32+update_ene(emomM(1:3,ii,kk),beff_bqfull32,0.25_dblprec)
+				  if(plotenergy==2) site_energy(17,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull32,0.25_dblprec)
+			   endif
+			   !Biquadratic 4spin-2site H33 interaction
+               if(ham_inp%do_bqfull33==1) then
+				  call bqfull33_field(ii, kk, beff_bqfull33,Natom,Mensemble,emomM)
+				  ebqfull33=ebqfull33+update_ene(emomM(1:3,ii,kk),beff_bqfull33,0.25_dblprec)
+				  if(plotenergy==2) site_energy(18,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull33,0.25_dblprec)
+			   endif
+			   !Biquadratic 4spin-2site H34 interaction
+               if(ham_inp%do_bqfull34==1) then
+				  call bqfull34_field(ii, kk, beff_bqfull34,Natom,Mensemble,emomM)
+				  ebqfull34=ebqfull34+update_ene(emomM(1:3,ii,kk),beff_bqfull34,0.25_dblprec)
+				  if(plotenergy==2) site_energy(19,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull34,0.25_dblprec)
+			   endif
+			   !Biquadratic 4spin-2site H35 interaction
+               if(ham_inp%do_bqfull35==1) then
+				  call bqfull35_field(ii, kk, beff_bqfull35,Natom,Mensemble,emomM)
+				  ebqfull35=ebqfull35+update_ene(emomM(1:3,ii,kk),beff_bqfull35,0.25_dblprec)
+				  if(plotenergy==2) site_energy(20,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull35,0.25_dblprec)
+			   endif
+			   !Biquadratic 4spin-2site H36 interaction
+               if(ham_inp%do_bqfull36==1) then
+				  call bqfull36_field(ii, kk, beff_bqfull36,Natom,Mensemble,emomM)
+				  ebqfull36=ebqfull36+update_ene(emomM(1:3,ii,kk),beff_bqfull36,0.25_dblprec)
+				  if(plotenergy==2) site_energy(21,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull36,0.25_dblprec)
+			   endif
+			   !!!!!!
 
                ! Dipolar energy contribution
                ! Notice that this makes use of the bfield_dip that is previously calculated
@@ -338,7 +447,17 @@ contains
             ene%ene_dip(kk)=edip
             ene%ene_pair(kk)=epair
             ene%ene_bqdm(kk)=ebqdm
-
+            !Bq 4-2 interactions
+            ene%ene_bqfull11(kk)=ebqfull11
+            ene%ene_bqfull21(kk)=ebqfull21
+            ene%ene_bqfull22(kk)=ebqfull22
+            ene%ene_bqfull23(kk)=ebqfull23
+            ene%ene_bqfull31(kk)=ebqfull31
+            ene%ene_bqfull32(kk)=ebqfull32
+            ene%ene_bqfull33(kk)=ebqfull33
+            ene%ene_bqfull34(kk)=ebqfull34
+            ene%ene_bqfull35(kk)=ebqfull35
+            ene%ene_bqfull36(kk)=ebqfull36
          end do
       else
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -365,17 +484,35 @@ contains
       ene%ene_pair(:)=ene%ene_pair(:)/(stop_atom-start_atom+1)
       ene%ene_chir(:)=ene%ene_chir(:)/(stop_atom-start_atom+1)
       ene%ene_bqdm(:)=ene%ene_bqdm(:)/(stop_atom-start_atom+1)
+      !4spin-2site interactions
+      ene%ene_bqfull11(:)=ene%ene_bqfull11(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull21(:)=ene%ene_bqfull21(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull22(:)=ene%ene_bqfull22(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull23(:)=ene%ene_bqfull23(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull31(:)=ene%ene_bqfull31(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull32(:)=ene%ene_bqfull32(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull33(:)=ene%ene_bqfull33(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull34(:)=ene%ene_bqfull34(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull35(:)=ene%ene_bqfull35(:)/(stop_atom-start_atom+1)
+      ene%ene_bqfull36(:)=ene%ene_bqfull36(:)/(stop_atom-start_atom+1)
+      !
       ene%ene_lsf(:)=0.50_dblprec*ene%ene_lsf(:)/(stop_atom-start_atom+1)
       if(do_lsf=='Y') ene%ene_xc(:)=0.5_dblprec*ene%ene_xc(:)
       ! Divide the total energy per atom
       if (ham_inp%do_jtensor/=1) then
          ene%energy(:)=ene%ene_xc(:)+ene%ene_dm(:)+ene%ene_pd(:)+ene%ene_bq(:)+     &
             ene%ene_ring(:)+ene%ene_ext(:)+ene%ene_ani(:)+ene%ene_dip(:)+           &
-            ene%ene_bqdm(:)+ene%ene_lsf(:)+ene%ene_chir(:)+ene%ene_sa(:)
+            ene%ene_bqdm(:)+ene%ene_lsf(:)+ene%ene_chir(:)+ene%ene_sa(:) + &
+            ene%ene_bqfull11(:)+ene%ene_bqfull21(:)+ene%ene_bqfull22(:)+ene%ene_bqfull23(:) + &
+            ene%ene_bqfull31(:)+ene%ene_bqfull32(:)+ene%ene_bqfull33(:)+ene%ene_bqfull34(:) + &
+            ene%ene_bqfull35(:)+ene%ene_bqfull36(:)
       else
          ene%energy(:)=ene%ene_pair(:)+ene%ene_pd(:)+ene%ene_bq(:)+ene%ene_ring(:)+ & 
          ene%ene_ext(:)+ene%ene_ani(:)+ene%ene_dip(:)+ene%ene_bqdm(:)+              & 
-         ene%ene_lsf(:)+ene%ene_chir(:)
+         ene%ene_lsf(:)+ene%ene_chir(:) + &
+         ene%ene_bqfull11(:)+ene%ene_bqfull21(:)+ene%ene_bqfull22(:)+ene%ene_bqfull23(:)+ &
+         ene%ene_bqfull31(:)+ene%ene_bqfull32(:)+ene%ene_bqfull33(:)+ene%ene_bqfull34(:)+ &
+         ene%ene_bqfull35(:)+ene%ene_bqfull36(:)
       endif
 
       ! Mean and std.dev. of  energies
@@ -395,6 +532,18 @@ contains
       call calculate_mean_and_deviation(ene%ene_ext,Mensemble,ene_ext_m,ene_ext_s,fcinv)
       call calculate_mean_and_deviation(ene%ene_lsf,Mensemble,ene_lsf_m,ene_lsf_s,fcinv)
       call calculate_mean_and_deviation(ene%ene_bqdm,Mensemble,ene_bqdm_m,ene_bqdm_s,fcinv)
+      !
+      call calculate_mean_and_deviation(ene%ene_bqfull11,Mensemble,ene_bqfull11_m,ene_bqfull11_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull21,Mensemble,ene_bqfull21_m,ene_bqfull21_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull22,Mensemble,ene_bqfull22_m,ene_bqfull22_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull23,Mensemble,ene_bqfull23_m,ene_bqfull23_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull31,Mensemble,ene_bqfull31_m,ene_bqfull31_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull32,Mensemble,ene_bqfull32_m,ene_bqfull32_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull33,Mensemble,ene_bqfull33_m,ene_bqfull33_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull34,Mensemble,ene_bqfull34_m,ene_bqfull34_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull35,Mensemble,ene_bqfull35_m,ene_bqfull35_s,fcinv)
+      call calculate_mean_and_deviation(ene%ene_bqfull36,Mensemble,ene_bqfull36_m,ene_bqfull36_s,fcinv)
+      !
       call calculate_mean_and_deviation(ene%ene_chir,Mensemble,ene_chir_m,ene_chir_s,fcinv)
 
       ! Rescale energies for other use later (Cv)
@@ -414,19 +563,27 @@ contains
          if (real_time_measure=='Y') then
             if (mstep-1==0) then
                write(ofileno,10010) "#Time","Tot", "Exc","Ani","DM","PD","BiqDM",   &
-               "BQ","Dip","Zeeman","LSF","Chir","Ring","SA"
+               "BQ","Dip","Zeeman","LSF","Chir","Ring","SA","H11(4-2)","H21(4-2)","H22(4-2)","H23(4-2)", &
+               "H31(4-2)","H32(4-2)","H33(4-2)","H34(4-2)","H35(4-2)","H36(4-2)"
             endif
             write(ofileno,10005) (mstep-1)*delta_t,energy_m,ene_xc_m,ene_ani_m,     &
                ene_dm_m,ene_pd_m,ene_bqdm_m,ene_bq_m,ene_dip_m,ene_ext_m,ene_lsf_m, &
-               ene_chir_m,ene_ring_m,ene_sa_m
+               ene_chir_m,ene_ring_m,ene_sa_m,&
+               ene_bqfull11_m,ene_bqfull21_m,ene_bqfull22_m,ene_bqfull23_m, &
+               ene_bqfull31_m,ene_bqfull32_m,ene_bqfull33_m,ene_bqfull34_m, &
+               ene_bqfull35_m,ene_bqfull36_m
          else
             if (mstep-1==0) then
                write(ofileno,10010) "#Iter","Tot","Exc","Ani","DM","PD","BiqDM",    &
-               "BQ","Dip","Zeeman","LSF","Chir","Ring","SA"
+               "BQ","Dip","Zeeman","LSF","Chir","Ring","SA", "H11(4-2)","H21(4-2)","H22(4-2)","H23(4-2)", &
+               "H31(4-2)","H32(4-2)","H33(4-2)","H34(4-2)","H35(4-2)","H36(4-2)"
             endif
             write(ofileno,10004) mstep-1,energy_m,ene_xc_m,ene_ani_m,ene_dm_m,      &
                ene_pd_m,ene_bqdm_m,ene_bq_m,ene_dip_m,ene_ext_m,ene_lsf_m,          &
-               ene_chir_m,ene_ring_m,ene_sa_m
+               ene_chir_m,ene_ring_m,ene_sa_m,&
+               ene_bqfull11_m,ene_bqfull21_m,ene_bqfull22_m,ene_bqfull23_m, &
+               ene_bqfull31_m,ene_bqfull32_m,ene_bqfull33_m,ene_bqfull34_m, &
+               ene_bqfull35_m,ene_bqfull36_m
          endif
          close(ofileno)
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -438,19 +595,27 @@ contains
             if (real_time_measure=='Y') then
                if (mstep-1==0) then
                   write(ofileno,10010) "#Time","Tot","Exc","Ani", "DM","PD","BiqDM",&
-                  "BQ","Dip Ene","Zeeman","LSF","Chir","Ring", "SA"
+                  "BQ","Dip Ene","Zeeman","LSF","Chir","Ring", "SA", "H11(4-2)","H21(4-2)","H22(4-2)","H23(4-2)", &
+                  "H31(4-2)","H32(4-2)","H33(4-2)","H34(4-2)","H35(4-2)","H36(4-2)"
                endif
                write(ofileno,10005) (mstep-1)*delta_t,energy_s,ene_xc_s,ene_ani_s,  &
                   ene_dm_s,ene_pd_s,ene_bqdm_s,ene_bq_s,ene_dip_s,ene_ext_s,        &
-                  ene_lsf_s,ene_chir_s,ene_ring_s, ene_sa_s
+                  ene_lsf_s,ene_chir_s,ene_ring_s, ene_sa_s,&
+                  ene_bqfull11_s,ene_bqfull21_s,ene_bqfull22_s,ene_bqfull23_s, &
+                  ene_bqfull31_s,ene_bqfull32_s,ene_bqfull33_s,ene_bqfull34_s, &
+                  ene_bqfull35_s,ene_bqfull36_s
             else
                if (mstep-1==0) then
                   write(ofileno,10010) "#Iter","Tot","Exc","Ani", "DM","PD","BiqDM",&
-                  "BQ","Dip","Zeeman","LSF","Chir","Ring", "SA"
+                  "BQ","Dip","Zeeman","LSF","Chir","Ring", "SA","H11(4-2)","H21(4-2)","H22(4-2)","H23(4-2)", &
+                  "H31(4-2)","H32(4-2)","H33(4-2)","H34(4-2)","H35(4-2)","H36(4-2)"
                endif
                write(ofileno,10004) mstep-1,energy_s,ene_xc_s,ene_ani_s,ene_dm_s,   &
                   ene_pd_s,ene_bqdm_s,ene_bq_s,ene_dip_s,ene_ext_s,ene_lsf_s,       &
-                  ene_chir_s,ene_ring_s, ene_sa_s
+                  ene_chir_s,ene_ring_s, ene_sa_s,&
+                  ene_bqfull11_s,ene_bqfull21_s,ene_bqfull22_s,ene_bqfull23_s, &
+                  ene_bqfull31_s,ene_bqfull32_s,ene_bqfull33_s,ene_bqfull34_s, &
+                  ene_bqfull35_s,ene_bqfull36_s
             endif
             close(ofileno)
          endif
@@ -461,19 +626,27 @@ contains
          if (real_time_measure=='Y') then
             if (mstep-1==0) then
                write(ofileno,10011) "#Time","Tot","Heis-Tens","Ani","PD","BiqDM",   &
-               "BQ","Dip","Zeeman","LSF","Chir","Ring"
+               "BQ","Dip","Zeeman","LSF","Chir","Ring","H11(4-2)","H21(4-2)","H22(4-2)","H23(4-2)", &
+               "H31(4-2)","H32(4-2)","H33(4-2)","H34(4-2)","H35(4-2)","H36(4-2)"
             endif
             write(ofileno,10007) (mstep-1)*delta_t,energy_m,ene_pair_m,ene_ani_m,   &
                ene_pd_m,ene_bqdm_m,ene_bq_m,ene_dip_m,ene_ext_m,ene_lsf_m,          &
-               ene_chir_m,ene_ring_m
+               ene_chir_m,ene_ring_m,&
+               ene_bqfull11_m,ene_bqfull21_m,ene_bqfull22_m,ene_bqfull23_m, &
+               ene_bqfull31_m,ene_bqfull32_m,ene_bqfull33_m,ene_bqfull34_m, &
+               ene_bqfull35_m,ene_bqfull36_m
          else
             if (mstep-1==0) then
                write(ofileno,10011) "#Iter","Tot","Heis-Tens","Ani","PD","BiqDM",   &
-               "BQ","Dip","Zeeman","LSF","Chir","Ring"
+               "BQ","Dip","Zeeman","LSF","Chir","Ring","H11(4-2)","H21(4-2)","H22(4-2)","H23(4-2)", &
+               "H31(4-2)","H32(4-2)","H33(4-2)","H34(4-2)","H35(4-2)","H36(4-2)"
             endif
             write(ofileno,10006) mstep-1,energy_m,ene_pair_m,ene_ani_m,ene_pd_m,    &
                ene_bqdm_m,ene_bq_m,ene_dip_m,ene_ext_m,ene_lsf_m,ene_chir_m,        &
-               ene_ring_m
+               ene_ring_m,&
+               ene_bqfull11_m,ene_bqfull21_m,ene_bqfull22_m,ene_bqfull23_m, &
+               ene_bqfull31_m,ene_bqfull32_m,ene_bqfull33_m,ene_bqfull34_m, &
+               ene_bqfull35_m,ene_bqfull36_m
          endif
          close(ofileno)
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -485,19 +658,27 @@ contains
             if (real_time_measure=='Y') then
                if (mstep-1==0) then
                   write(ofileno,10011) "#Time","Tot","Heis-Tens","Ani","PD","BiqDM",&
-                  "BQ","Dip","Zeeman","LSF","Chir","Ring"
+                  "BQ","Dip","Zeeman","LSF","Chir","Ring","H11(4-2)","H21(4-2)","H22(4-2)","H23(4-2)", &
+                  "H31(4-2)","H32(4-2)","H33(4-2)","H34(4-2)","H35(4-2)","H36(4-2)"
                endif
                write(ofileno,10007) (mstep-1)*delta_t,energy_s,ene_pair_s,ene_ani_s,&
                ene_pd_s, ene_bqdm_s,ene_bq_s,ene_dip_s,ene_ext_s,ene_lsf_s,         &
-               ene_chir_s,ene_ring_s
+               ene_chir_s,ene_ring_s,&
+               ene_bqfull11_s,ene_bqfull21_s,ene_bqfull22_s,ene_bqfull23_s, &
+               ene_bqfull31_s,ene_bqfull32_s,ene_bqfull33_s,ene_bqfull34_s, &
+               ene_bqfull35_s,ene_bqfull36_s
             else
                if (mstep-1==0) then
                   write(ofileno,10011)"#Iter","Tot","Heis-Tens","Ani","PD","BiqDM",&
-                  "BQ","Dipolar","Zeeman","LSF","Chir","Ring"
+                  "BQ","Dipolar","Zeeman","LSF","Chir","Ring","H11(4-2)","H21(4-2)","H22(4-2)","H23(4-2)", &
+                  "H31(4-2)","H32(4-2)","H33(4-2)","H34(4-2)","H35(4-2)","H36(4-2)"
                endif
                write(ofileno,10006) mstep-1,energy_s,ene_pair_s,ene_ani_s,ene_pd_s, &
                   ene_bqdm_s,ene_bq_s,ene_dip_s,ene_ext_s,ene_lsf_s,ene_chir_s,     &
-                  ene_ring_s
+                  ene_ring_s,&
+                  ene_bqfull11_s,ene_bqfull21_s,ene_bqfull22_s,ene_bqfull23_s, &
+                  ene_bqfull31_s,ene_bqfull32_s,ene_bqfull33_s,ene_bqfull34_s, &
+                  ene_bqfull35_s,ene_bqfull36_s
             endif
             close(ofileno)
          endif
@@ -513,8 +694,10 @@ contains
 
          if (mstep-1==0) then
             ! 0: Total, 1: Jij, 2: DM, 3: PseudoDip, 4: BiqDM, 5: BiqH, 6: Dipole, 7: Anisotropy, 8: Zeeman
+            ! 12:Bqfull11, 13:Bqfull21, 14:Bqfull22
             write(ofileno,10015) '#Iter','Site','Ens','Tot','Exc','Ani','DM','PD',  &
-            'BiqDM','BQ','Dip','Zeeman','LSF','Chir','Ring'
+            'BiqDM','BQ','Dip','Zeeman','LSF','Chir','Ring','H11(4-2)','H21(4-2)','H22(4-2)','H23(4-2)', &
+            'H31(4-2)','H32(4-2)','H33(4-2)','H34(4-2)','H35(4-2)','H36(4-2)'
          endif
 
          do kk=1, Mensemble
@@ -523,7 +706,10 @@ contains
                site_energy(1,ii,kk),site_energy(7,ii,kk),site_energy(2,ii,kk),      &
                site_energy(3,ii,kk),site_energy(4,ii,kk),site_energy(5,ii,kk),      &
                site_energy(6,ii,kk),site_energy(8,ii,kk),site_energy(9,ii,kk),      &
-               site_energy(10,ii,kk),site_energy(11,ii,kk)
+               site_energy(10,ii,kk),site_energy(11,ii,kk),							&
+               site_energy(12,ii,kk),site_energy(13,ii,kk),site_energy(14,ii,kk),site_energy(15,ii,kk), &
+               site_energy(16,ii,kk),site_energy(17,ii,kk),site_energy(18,ii,kk),site_energy(19,ii,kk), &
+               site_energy(20,ii,kk),site_energy(21,ii,kk)
             end do
          end do
          close(ofileno)
@@ -658,6 +844,48 @@ contains
          allocate(ene%ene_pair(Mensemble),stat=i_stat)
          call memocc(i_stat,product(shape(ene%ene_pair))*kind(ene%ene_pair),'ene%ene_pair','allocate_energies')
          ene%ene_pair=0.0_dblprec
+         !!!!!!
+         !H11
+         allocate(ene%ene_bqfull11(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull11))*kind(ene%ene_bqfull11),'ene%ene_bqfull11','allocate_energies')
+         ene%ene_bqfull11=0.0_dblprec
+         !H21
+         allocate(ene%ene_bqfull21(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull21))*kind(ene%ene_bqfull21),'ene%ene_bqfull21','allocate_energies')
+         ene%ene_bqfull21=0.0_dblprec
+         !H22
+         allocate(ene%ene_bqfull22(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull22))*kind(ene%ene_bqfull22),'ene%ene_bqfull22','allocate_energies')
+         ene%ene_bqfull22=0.0_dblprec
+         !H23
+         allocate(ene%ene_bqfull23(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull23))*kind(ene%ene_bqfull23),'ene%ene_bqfull23','allocate_energies')
+         ene%ene_bqfull23=0.0_dblprec
+         !H31
+         allocate(ene%ene_bqfull31(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull31))*kind(ene%ene_bqfull31),'ene%ene_bqfull31','allocate_energies')
+         ene%ene_bqfull31=0.0_dblprec
+         !H32
+         allocate(ene%ene_bqfull32(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull32))*kind(ene%ene_bqfull32),'ene%ene_bqfull32','allocate_energies')
+         ene%ene_bqfull32=0.0_dblprec
+         !H33
+         allocate(ene%ene_bqfull33(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull33))*kind(ene%ene_bqfull33),'ene%ene_bqfull33','allocate_energies')
+         ene%ene_bqfull33=0.0_dblprec
+         !H34
+         allocate(ene%ene_bqfull34(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull34))*kind(ene%ene_bqfull34),'ene%ene_bqfull34','allocate_energies')
+         ene%ene_bqfull34=0.0_dblprec
+         !H35
+         allocate(ene%ene_bqfull35(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull35))*kind(ene%ene_bqfull35),'ene%ene_bqfull35','allocate_energies')
+         ene%ene_bqfull35=0.0_dblprec
+         !H36
+         allocate(ene%ene_bqfull36(Mensemble),stat=i_stat)
+         call memocc(i_stat,product(shape(ene%ene_bqfull36))*kind(ene%ene_bqfull36),'ene%ene_bqfull36','allocate_energies')
+         ene%ene_bqfull36=0.0_dblprec
+         !!!!!!
       else
          i_all=-product(shape(ene%energy))*kind(ene%energy)
          deallocate(ene%energy,stat=i_stat)
@@ -703,6 +931,48 @@ contains
          i_all=-product(shape(ene%ene_pair))*kind(ene%ene_pair)
          deallocate(ene%ene_pair,stat=i_stat)
          call memocc(i_stat,i_all,'ene%ene_pair','allocate_energies')
+         !!!!!!
+         !H11
+         i_all=-product(shape(ene%ene_bqfull11))*kind(ene%ene_bqfull11)
+         deallocate(ene%ene_bqfull11,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull11','allocate_energies')
+         !H21
+         i_all=-product(shape(ene%ene_bqfull21))*kind(ene%ene_bqfull21)
+         deallocate(ene%ene_bqfull21,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull21','allocate_energies') 
+         !H22
+         i_all=-product(shape(ene%ene_bqfull22))*kind(ene%ene_bqfull22)
+         deallocate(ene%ene_bqfull22,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull22','allocate_energies') 
+         !H23
+         i_all=-product(shape(ene%ene_bqfull23))*kind(ene%ene_bqfull23)
+         deallocate(ene%ene_bqfull23,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull23','allocate_energies') 
+         !H31
+         i_all=-product(shape(ene%ene_bqfull31))*kind(ene%ene_bqfull31)
+         deallocate(ene%ene_bqfull31,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull31','allocate_energies') 
+         !H32
+         i_all=-product(shape(ene%ene_bqfull32))*kind(ene%ene_bqfull32)
+         deallocate(ene%ene_bqfull32,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull32','allocate_energies') 
+         !H33
+         i_all=-product(shape(ene%ene_bqfull33))*kind(ene%ene_bqfull33)
+         deallocate(ene%ene_bqfull33,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull33','allocate_energies') 
+         !H34
+         i_all=-product(shape(ene%ene_bqfull34))*kind(ene%ene_bqfull34)
+         deallocate(ene%ene_bqfull34,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull34','allocate_energies') 
+         !H35
+         i_all=-product(shape(ene%ene_bqfull35))*kind(ene%ene_bqfull35)
+         deallocate(ene%ene_bqfull35,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull35','allocate_energies')
+         !H36
+         i_all=-product(shape(ene%ene_bqfull36))*kind(ene%ene_bqfull36)
+         deallocate(ene%ene_bqfull36,stat=i_stat)
+         call memocc(i_stat,i_all,'ene%ene_bqfull36','allocate_energies') 
+         !!!!!!    
 
       endif
 
@@ -717,20 +987,31 @@ contains
 
       implicit none
 
-      ene%energy     = 0.0_dblprec
-      ene%ene_xc     = 0.0_dblprec
-      ene%ene_dm     = 0.0_dblprec
-      ene%ene_sa     = 0.0_dblprec
-      ene%ene_pd     = 0.0_dblprec
-      ene%ene_bq     = 0.0_dblprec
-      ene%ene_ring   = 0.0_dblprec
-      ene%ene_chir   = 0.0_dblprec
-      ene%ene_ani    = 0.0_dblprec
-      ene%ene_ext    = 0.0_dblprec
-      ene%ene_dip    = 0.0_dblprec
-      ene%ene_lsf    = 0.0_dblprec
-      ene%ene_pair   = 0.0_dblprec
-      ene%ene_bqdm   = 0.0_dblprec
+      ene%energy     	= 0.0_dblprec
+      ene%ene_xc     	= 0.0_dblprec
+      ene%ene_dm     	= 0.0_dblprec
+      ene%ene_sa     	= 0.0_dblprec
+      ene%ene_pd     	= 0.0_dblprec
+      ene%ene_bq     	= 0.0_dblprec
+      ene%ene_ring   	= 0.0_dblprec
+      ene%ene_chir   	= 0.0_dblprec
+      ene%ene_ani    	= 0.0_dblprec
+      ene%ene_ext    	= 0.0_dblprec
+      ene%ene_dip    	= 0.0_dblprec
+      ene%ene_lsf    	= 0.0_dblprec
+      ene%ene_pair   	= 0.0_dblprec
+      ene%ene_bqdm   	= 0.0_dblprec
+      !
+      ene%ene_bqfull11	= 0.0_dblprec
+      ene%ene_bqfull21	= 0.0_dblprec
+      ene%ene_bqfull22	= 0.0_dblprec
+      ene%ene_bqfull23	= 0.0_dblprec
+      ene%ene_bqfull31	= 0.0_dblprec
+      ene%ene_bqfull32	= 0.0_dblprec
+      ene%ene_bqfull33	= 0.0_dblprec
+      ene%ene_bqfull34	= 0.0_dblprec
+      ene%ene_bqfull35	= 0.0_dblprec
+      ene%ene_bqfull36	= 0.0_dblprec
 
    end subroutine reset_arrays
 
