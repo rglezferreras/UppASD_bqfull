@@ -388,6 +388,48 @@ contains
       ham_inp%Ewald_alpha       = 0.0_dblprec
       ham_inp%KMAX              = (/0,0,0/)
       ham_inp%RMAX              = (/0,0,0/)
+      
+      !!!!!!
+      !Biquadratic 4spin-2site H11 data
+      ham_inp%bqfull11file		= 'bqfull11file'
+      ham_inp%do_bqfull11		= 0
+      
+      !Biquadratic 4spin-2site H21 data
+      ham_inp%bqfull21file		= 'bqfull21file'
+      ham_inp%do_bqfull21		= 0
+      
+      !Biquadratic 4spin-2site H22 data
+      ham_inp%bqfull22file		= 'bqfull22file'
+      ham_inp%do_bqfull22		= 0
+      
+      !Biquadratic 4spin-2site H23 data
+      ham_inp%bqfull23file		= 'bqfull23file'
+      ham_inp%do_bqfull23		= 0	  
+      
+      !Biquadratic 4spin-2site H31 data
+      ham_inp%bqfull31file		= 'bqfull31file'
+      ham_inp%do_bqfull31		= 0	
+      
+      !Biquadratic 4spin-2site H32 data
+      ham_inp%bqfull32file		= 'bqfull32file'
+      ham_inp%do_bqfull32		= 0	
+	  
+      !Biquadratic 4spin-2site H33 data
+      ham_inp%bqfull33file		= 'bqfull33file'
+      ham_inp%do_bqfull33		= 0	
+      
+      !Biquadratic 4spin-2site H34 data
+      ham_inp%bqfull34file		= 'bqfull34file'
+      ham_inp%do_bqfull34		= 0	
+	  
+      !Biquadratic 4spin-2site H35 data
+      ham_inp%bqfull35file		= 'bqfull35file'
+      ham_inp%do_bqfull35		= 0
+      
+      !Biquadratic 4spin-2site H36 data
+      ham_inp%bqfull36file		= 'bqfull36file'
+      ham_inp%do_bqfull36		= 0
+      !!!!!!
 
       !Parameters for energy minimization calculations
       minalgo           = 1
