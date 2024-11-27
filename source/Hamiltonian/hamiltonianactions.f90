@@ -174,6 +174,29 @@ contains
 
             ! Scalar chiral term
             if(ham_inp%do_chir==1) call chirality_field(i, k, beff_s,Natom,Mensemble,emomM)
+	    
+     		!!!!!!
+            ! Biquadratic 4spin-2site H11 Interaction
+            if(ham_inp%do_bqfull11==1)	call bqfull11_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			! Biquadratic 4spin-2site H21 interaction
+			if(ham_inp%do_bqfull21==1)	call bqfull21_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			! Biquadratic 4spin-2site H22 interaction
+			if(ham_inp%do_bqfull22==1)	call bqfull22_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			!Biquadratic 4spin-2site H23 interaction
+			if(ham_inp%do_bqfull23==1)	call bqfull23_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			!Biquadratic 4spin-2site H31 interaction
+			if(ham_inp%do_bqfull31==1)	call bqfull31_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			!Biquadratic 4spin-2site H32 interaction
+			if(ham_inp%do_bqfull32==1)	call bqfull32_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			!Biquadratic 4spin-2site H33 interaction
+			if(ham_inp%do_bqfull33==1)	call bqfull33_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			!Biquadratic 4spin-2site H34 interaction
+			if(ham_inp%do_bqfull34==1)	call bqfull34_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			!Biquadratic 4spin-2site H35 interaction
+			if(ham_inp%do_bqfull35==1)	call bqfull35_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			!Biquadratic 4spin-2site H36 interaction
+			if(ham_inp%do_bqfull36==1)	call bqfull36_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
+			!!!!!!
 
             ! Anisotropy
             if (ham_inp%do_anisotropy==1) then
@@ -731,5 +754,378 @@ contains
          endif
 
       end subroutine cubic_anisotropy_field
+
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+   !---------------4spin-2site terms---------------!
+   !!!!!!
+   !> BQfull11 field
+    subroutine bqfull11_field(i, k, field,Natom,Mensemble,emomM)
+        implicit none
+        integer, intent(in) :: i !< Atom to calculate effective field for
+        integer, intent(in) :: k !< Current ensemble
+        integer, intent(in) :: Natom        !< Number of atoms in system
+	    integer, intent(in) :: Mensemble    !< Number of ensembles
+	    real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+	    real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+	    !
+	    integer :: j ! Neighbourlist index
+	    integer :: x ! Exchange index
+	    integer :: ih ! Hamiltonian index
+
+	    field = field + ham%bqfull11_tens(:,1,i,i)*emomM(1,i,k)	+ ham%bqfull11_tens(:,2,i,i)*emomM(2,i,k) + ham%bqfull11_tens(:,3,i,i)*emomM(3,i,k)
+    end subroutine bqfull11_field
+    
+    !!!!!!
+    !> BQfull21 field
+    subroutine bqfull21_field(i, k, field,Natom,Mensemble,emomM)
+        implicit none
+        integer, intent(in) :: i !< Atom to calculate effective field for
+        integer, intent(in) :: k !< Current ensemble
+        integer, intent(in) :: Natom        !< Number of atoms in system
+        integer, intent(in) :: Mensemble    !< Number of ensembles
+        real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+        real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+        !
+        integer :: j ! Neighbourlist index
+        integer :: x ! Exchange index
+        integer :: ih ! Hamiltonian index
+	
+        !Exchange term
+        ih=ham%aHam(i)
+        do j=1,ham%bqfull21listsize(ih)
+		   x = ham%bqfull21list(j,i);
+           field = field + ham%bqfull21(j,ih)*emomM(1,x,k) + ham%bqfull21(j,ih)*emomM(2,x,k) + ham%bqfull21(j,ih)*emomM(3,x,k)
+        end do
+
+    end subroutine bqfull21_field
+    
+    !!!!!!
+    !> BQfull22 field
+    subroutine bqfull22_field(i, k, field,Natom,Mensemble,emomM)
+      implicit none
+	  integer, intent(in) :: i !< Atom to calculate effective field for
+	  integer, intent(in) :: k !< Current ensemble
+	  integer, intent(in) :: Natom        !< Number of atoms in system
+	  integer, intent(in) :: Mensemble    !< Number of ensembles
+	  real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+	  real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+	  !
+	  integer :: j ! Neighbourlist index
+	  integer :: x ! Exchange index
+	  integer :: ih ! Hamiltonian index
+	
+	  !Exchange term
+	  ih=ham%aHam(i)
+	  do j=1,ham%bqfull22listsize(ih)
+		x = ham%bqfull22list(j,i);
+		field = field + ham%bqfull22_tens(:,1,j,ih)*emomM(1,x,k) + ham%bqfull22_tens(:,2,j,ih)*emomM(2,x,k) + ham%bqfull22_tens(:,3,j,ih)*emomM(3,x,k)
+	  end do
+
+    end subroutine bqfull22_field
+    
+    
+    !!!!!!
+    !> BQfull23 field
+    subroutine bqfull23_field(i, k, field,Natom,Mensemble,emomM)
+        !.. Implicit declarations
+        implicit none
+
+        integer, intent(in) :: i !< Atom to calculate effective field for
+        integer, intent(in) :: k !< Current ensemble
+        integer, intent(in) :: Natom        !< Number of atoms in system
+        integer, intent(in) :: Mensemble    !< Number of ensembles
+        real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+        real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+        !
+        integer :: j, ih
+
+        ih=ham%aHam(i)
+        do j=1,ham%bqfull23listsize(ih)
+            field(1) = field(1) + ham%bqfull23_vec(3,j,ih)*emomM(2,ham%bqfull23list(j,i),k) -&
+		       ham%bqfull23_vec(2,j,ih)*emomM(3,ham%bqfull23list(j,i),k)
+            field(2) = field(2) + ham%bqfull23_vec(1,j,ih)*emomM(3,ham%bqfull23list(j,i),k) -&
+		       ham%bqfull23_vec(3,j,ih)*emomM(1,ham%bqfull23list(j,i),k)
+            field(3) = field(3) + ham%bqfull23_vec(2,j,ih)*emomM(1,ham%bqfull23list(j,i),k) -&
+		       ham%bqfull23_vec(1,j,ih)*emomM(2,ham%bqfull23list(j,i),k)
+        end do
+
+    end subroutine bqfull23_field
+    
+    !!!!!!
+    !> BQfull31 field
+    subroutine bqfull31_field(i, k, field,Natom,Mensemble,emomM)
+        implicit none
+        integer, intent(in) :: i !< Atom to calculate effective field for
+        integer, intent(in) :: k !< Current ensemble
+        integer, intent(in) :: Natom        !< Number of atoms in system
+        integer, intent(in) :: Mensemble    !< Number of ensembles
+        real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+        real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+        !
+        integer :: j ! Neighbourlist index
+        integer :: x ! Exchange index
+        integer :: ih ! Hamiltonian index
+	
+        !Exchange term
+        ih=ham%aHam(i)
+        do j=1,ham%bqfull31listsize(ih)
+		   x = ham%bqfull31list(j,i);
+           field = field + ham%bqfull31(j,ih)*dot_product(emomM(:,x,k),emomM(:,x,k))*emomM(:,i,k)
+        end do
+    end subroutine bqfull31_field
+    
+    
+    !!!!!!
+    !> BQfull32 field
+    subroutine bqfull32_field(i, k, field,Natom,Mensemble,emomM)
+      implicit none
+	  integer, intent(in) :: i !< Atom to calculate effective field for
+	  integer, intent(in) :: k !< Current ensemble
+	  integer, intent(in) :: Natom        !< Number of atoms in system
+	  integer, intent(in) :: Mensemble    !< Number of ensembles
+	  real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+	  real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+	  !
+	  integer :: j ! Neighbourlist index
+	  integer :: x ! Exchange index
+	  integer :: ih ! Hamiltonian index
+	  real :: term1, term2, term3
+
+	
+	  !Exchange term
+	  ih=ham%aHam(i)
+	  do j=1,ham%bqfull32listsize(ih)
+		x = ham%bqfull32list(j,i)	
+		term1 = dot_product(matmul(ham%bqfull32_tens(:,:,j,i),emomM(:,i,k)),emomM(:,i,k))
+		term2 = 2*dot_product(emomM(:,i,k),matmul(ham%bqfull32_tens(:,:,j,i),emomM(:,i,k)))
+		term3 = dot_product(emomM(:,x,k),matmul(ham%bqfull32_tens(:,:,j,i),emomM(:,x,k)))
+		
+		field = field + 0.25*(term1+term2+term3)*emomM(:,x,k)
+	  end do
+
+    end subroutine bqfull32_field    
+    
+
+    !!!!!!
+    !> BQfull33 field
+    subroutine bqfull33_field(i, k, field,Natom,Mensemble,emomM)
+      implicit none
+	  integer, intent(in) :: i !< Atom to calculate effective field for
+	  integer, intent(in) :: k !< Current ensemble
+	  integer, intent(in) :: Natom        !< Number of atoms in system
+	  integer, intent(in) :: Mensemble    !< Number of ensembles
+	  real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+	  real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+	  !
+	  integer :: j ! Neighbourlist index
+	  integer :: x ! Exchange index
+	  integer :: ih ! Hamiltonian index
+	  real :: term1, term2, term3
+	
+	  !Exchange term
+	  ih=ham%aHam(i)
+	  do j=1,ham%bqfull33listsize(ih)
+		x = ham%bqfull33list(j,i);	
+		term1 = dot_product(matmul(ham%bqfull33_tens(:,:,j,ih),emomM(:,x,k)),emomM(:,ih,k))
+		term2 = 2*dot_product(emomM(:,x,k),matmul(ham%bqfull33_tens(:,:,j,ih),emomM(:,ih,k)))
+		term3 = dot_product(emomM(:,ih,k),matmul(ham%bqfull33_tens(:,:,j,ih),emomM(:,x,k)))
+		
+		field = field + 0.25*(term1+term2+term3)*emomM(:,x,k)
+	  end do
+
+    end subroutine bqfull33_field  
+
+
+    !!!!!!
+    !> BQfull34 field
+    subroutine bqfull34_field(i, k, field,Natom,Mensemble,emomM)
+        !.. Implicit declarations
+        implicit none
+
+        integer, intent(in) :: i !< Atom to calculate effective field for
+        integer, intent(in) :: k !< Current ensemble
+        integer, intent(in) :: Natom        !< Number of atoms in system
+        integer, intent(in) :: Mensemble    !< Number of ensembles
+        real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+        real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+        !
+        integer :: j, ih, x
+        real, dimension(3) :: cross_product
+
+        ih=ham%aHam(i)
+        do j=1,ham%bqfull34listsize(ih)
+			x = ham%bqfull34list(j,i)
+			cross_product=0.0
+			cross_product(1) = emomM(2,ih,k)*emomM(3,x,k) - emomM(3,ih,k)*emomM(2,x,k)
+			cross_product(2) = emomM(3,ih,k)*emomM(1,x,k) - emomM(1,ih,k)*emomM(3,x,k)
+			cross_product(3) = emomM(1,ih,k)*emomM(2,x,k) - emomM(2,ih,k)*emomM(1,x,k)
+			field = field + emomM(:,x,k)*dot_product(ham%bqfull34_vec(:,j,ih),cross_product)
+        end do
+
+    end subroutine bqfull34_field
+    
+    
+    !!!!!!
+    subroutine bqfull35_field(i,k,field,Natom,Mensemble,emomM)
+		!.. Implicit declarations
+		implicit none
+		integer, intent(in) :: i !< Atom to calculate effective field for
+        integer, intent(in) :: k !< Current ensemble
+        integer, intent(in) :: Natom        !< Number of atoms in system
+        integer, intent(in) :: Mensemble    !< Number of ensembles
+        real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+        real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+        !
+        integer :: j, ih, x
+        real, dimension(3) :: cross_product  !ei x ex
+        real :: xterm, yterm, zterm
+        
+        ih=ham%aHam(i)
+        do j=1,ham%bqfull35listsize(ih)
+			x=ham%bqfull35list(j,i)
+			cross_product=0.0
+			cross_product(1) = emomM(2,ih,k)*emomM(3,x,k) - emomM(3,ih,k)*emomM(2,x,k)
+			cross_product(2) = emomM(3,ih,k)*emomM(1,x,k) - emomM(1,ih,k)*emomM(3,x,k)
+			cross_product(3) = emomM(1,ih,k)*emomM(2,x,k) - emomM(2,ih,k)*emomM(1,x,k)
+			xterm = emomM(2,x,k)*(emomM(1,ih,k)*ham%bqfull35_3tens(3,1,1,j,ih)*emomM(1,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(3,1,2,j,ih)*emomM(2,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(3,1,3,j,ih)*emomM(3,ih,k) +&
+								emomM(2,ih,k)*ham%bqfull35_3tens(3,2,1,j,ih)*emomM(1,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(3,2,2,j,ih)*emomM(2,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(3,2,3,j,ih)*emomM(3,ih,k) + &
+								emomM(3,ih,k)*ham%bqfull35_3tens(3,3,1,j,ih)*emomM(1,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(3,3,2,j,ih)*emomM(2,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(3,3,3,j,ih)*emomM(3,ih,k)) &
+					- emomM(3,x,k)*(emomM(1,ih,k)*ham%bqfull35_3tens(2,1,1,j,ih)*emomM(1,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(2,1,2,j,ih)*emomM(2,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(2,1,3,j,ih)*emomM(3,ih,k) + &
+								emomM(2,ih,k)*ham%bqfull35_3tens(2,2,1,j,ih)*emomM(1,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(2,2,2,j,ih)*emomM(2,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(2,2,3,j,ih)*emomM(3,ih,k) + &
+								emomM(3,ih,k)*ham%bqfull35_3tens(2,3,1,j,ih)*emomM(1,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(2,3,2,j,ih)*emomM(2,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(2,3,3,j,ih)*emomM(3,ih,k)) &
+					+ emomM(3,x,k)*(emomM(1,x,k)*ham%bqfull35_3tens(2,1,1,j,ih)*emomM(1,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(2,1,2,j,ih)*emomM(2,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(2,1,3,j,ih)*emomM(3,x,k) + &
+								emomM(2,x,k)*ham%bqfull35_3tens(2,2,1,j,ih)*emomM(1,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(2,2,2,j,ih)*emomM(2,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(2,2,3,j,ih)*emomM(3,x,k) + &
+								emomM(3,x,k)*ham%bqfull35_3tens(2,3,1,j,ih)*emomM(1,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(2,3,2,j,ih)*emomM(2,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(2,3,3,j,ih)*emomM(3,x,k)) &
+					- emomM(2,x,k)*(emomM(1,x,k)*ham%bqfull35_3tens(3,1,1,j,ih)*emomM(1,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(3,1,2,j,ih)*emomM(2,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(3,1,3,j,ih)*emomM(3,x,k) +&
+								emomM(2,x,k)*ham%bqfull35_3tens(3,2,1,j,ih)*emomM(1,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(3,2,2,j,ih)*emomM(2,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(3,2,3,j,ih)*emomM(3,x,k) + &
+								emomM(3,x,k)*ham%bqfull35_3tens(3,3,1,j,ih)*emomM(1,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(3,3,2,j,ih)*emomM(2,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(3,3,3,j,ih)*emomM(3,x,k)) &
+					+ cross_product(1)*(ham%bqfull35_3tens(1,1,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(1,1,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(1,1,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(1,1,1,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(1,2,1,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(1,3,1,j,ih)) &
+					+ cross_product(2)*(ham%bqfull35_3tens(2,1,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(2,1,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(2,1,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(2,1,1,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(2,2,1,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(2,3,1,j,ih)) &
+					+ cross_product(3)*(ham%bqfull35_3tens(3,1,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(3,1,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(3,1,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(3,1,1,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(3,2,1,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(3,3,1,j,ih))
+			!
+			yterm = emomM(3,x,k)*(emomM(1,ih,k)*ham%bqfull35_3tens(1,1,1,j,ih)*emomM(1,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(1,1,2,j,ih)*emomM(2,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(1,1,3,j,ih)*emomM(3,ih,k) +&
+								emomM(2,ih,k)*ham%bqfull35_3tens(1,2,1,j,ih)*emomM(1,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(1,2,2,j,ih)*emomM(2,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(1,2,3,j,ih)*emomM(3,ih,k) + &
+								emomM(3,ih,k)*ham%bqfull35_3tens(1,3,1,j,ih)*emomM(1,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(1,3,2,j,ih)*emomM(2,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(1,3,3,j,ih)*emomM(3,ih,k)) &
+					- emomM(1,x,k)*(emomM(1,ih,k)*ham%bqfull35_3tens(3,1,1,j,ih)*emomM(1,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(3,1,2,j,ih)*emomM(2,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(3,1,3,j,ih)*emomM(3,ih,k) +&
+								emomM(2,ih,k)*ham%bqfull35_3tens(3,2,1,j,ih)*emomM(1,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(3,2,2,j,ih)*emomM(2,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(3,2,3,j,ih)*emomM(3,ih,k) + &
+								emomM(3,ih,k)*ham%bqfull35_3tens(3,3,1,j,ih)*emomM(1,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(3,3,2,j,ih)*emomM(2,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(3,3,3,j,ih)*emomM(3,ih,k)) &
+					+ emomM(1,x,k)*(emomM(1,x,k)*ham%bqfull35_3tens(3,1,1,j,ih)*emomM(1,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(3,1,2,j,ih)*emomM(2,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(3,1,3,j,ih)*emomM(3,x,k) +&
+								emomM(2,x,k)*ham%bqfull35_3tens(3,2,1,j,ih)*emomM(1,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(3,2,2,j,ih)*emomM(2,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(3,2,3,j,ih)*emomM(3,x,k) + &
+								emomM(3,x,k)*ham%bqfull35_3tens(3,3,1,j,ih)*emomM(1,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(3,3,2,j,ih)*emomM(2,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(3,3,3,j,ih)*emomM(3,x,k)) &
+					- emomM(3,x,k)*(emomM(1,x,k)*ham%bqfull35_3tens(1,1,1,j,ih)*emomM(1,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(1,1,2,j,ih)*emomM(2,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(1,1,3,j,ih)*emomM(3,x,k) +&
+								emomM(2,x,k)*ham%bqfull35_3tens(1,2,1,j,ih)*emomM(1,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(1,2,2,j,ih)*emomM(2,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(1,2,3,j,ih)*emomM(3,x,k) + &
+								emomM(3,x,k)*ham%bqfull35_3tens(1,3,1,j,ih)*emomM(1,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(1,3,2,j,ih)*emomM(2,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(1,3,3,j,ih)*emomM(3,x,k)) &
+					+ cross_product(1)*(ham%bqfull35_3tens(1,2,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(1,2,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(1,2,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(1,1,2,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(1,2,2,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(1,3,2,j,ih)) &
+					+ cross_product(2)*(ham%bqfull35_3tens(2,2,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(2,2,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(2,2,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(2,1,2,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(2,2,2,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(2,3,2,j,ih)) &
+					+ cross_product(3)*(ham%bqfull35_3tens(3,2,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(3,2,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(3,2,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(3,1,2,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(3,2,2,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(3,3,2,j,ih))
+			!
+			zterm = emomM(1,x,k)*(emomM(1,ih,k)*ham%bqfull35_3tens(2,1,1,j,ih)*emomM(1,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(2,1,2,j,ih)*emomM(2,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(2,1,3,j,ih)*emomM(3,ih,k) + &
+								emomM(2,ih,k)*ham%bqfull35_3tens(2,2,1,j,ih)*emomM(1,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(2,2,2,j,ih)*emomM(2,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(2,2,3,j,ih)*emomM(3,ih,k) + &
+								emomM(3,ih,k)*ham%bqfull35_3tens(2,3,1,j,ih)*emomM(1,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(2,3,2,j,ih)*emomM(2,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(2,3,3,j,ih)*emomM(3,ih,k)) &
+					- emomM(2,x,k)*(emomM(1,ih,k)*ham%bqfull35_3tens(1,1,1,j,ih)*emomM(1,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(1,1,2,j,ih)*emomM(2,ih,k) + emomM(1,ih,k)*ham%bqfull35_3tens(1,1,3,j,ih)*emomM(3,ih,k) +&
+								emomM(2,ih,k)*ham%bqfull35_3tens(1,2,1,j,ih)*emomM(1,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(1,2,2,j,ih)*emomM(2,ih,k) + emomM(2,ih,k)*ham%bqfull35_3tens(1,2,3,j,ih)*emomM(3,ih,k) + &
+								emomM(3,ih,k)*ham%bqfull35_3tens(1,3,1,j,ih)*emomM(1,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(1,3,2,j,ih)*emomM(2,ih,k) + emomM(3,ih,k)*ham%bqfull35_3tens(1,3,3,j,ih)*emomM(3,ih,k)) &
+					+ emomM(2,x,k)*(emomM(1,x,k)*ham%bqfull35_3tens(1,1,1,j,ih)*emomM(1,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(1,1,2,j,ih)*emomM(2,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(1,1,3,j,ih)*emomM(3,x,k) +&
+								emomM(2,x,k)*ham%bqfull35_3tens(1,2,1,j,ih)*emomM(1,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(1,2,2,j,ih)*emomM(2,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(1,2,3,j,ih)*emomM(3,x,k) + &
+								emomM(3,x,k)*ham%bqfull35_3tens(1,3,1,j,ih)*emomM(1,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(1,3,2,j,ih)*emomM(2,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(1,3,3,j,ih)*emomM(3,x,k)) &
+					- emomM(1,x,k)*(emomM(1,x,k)*ham%bqfull35_3tens(2,1,1,j,ih)*emomM(1,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(2,1,2,j,ih)*emomM(2,x,k) + emomM(1,x,k)*ham%bqfull35_3tens(2,1,3,j,ih)*emomM(3,x,k) + &
+								emomM(2,x,k)*ham%bqfull35_3tens(2,2,1,j,ih)*emomM(1,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(2,2,2,j,ih)*emomM(2,x,k) + emomM(2,x,k)*ham%bqfull35_3tens(2,2,3,j,ih)*emomM(3,x,k) + &
+								emomM(3,x,k)*ham%bqfull35_3tens(2,3,1,j,ih)*emomM(1,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(2,3,2,j,ih)*emomM(2,x,k) + emomM(3,x,k)*ham%bqfull35_3tens(2,3,3,j,ih)*emomM(3,x,k)) &
+					+ cross_product(1)*(ham%bqfull35_3tens(1,3,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(1,3,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(1,3,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(1,1,3,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(1,2,3,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(1,3,3,j,ih)) &
+					+ cross_product(2)*(ham%bqfull35_3tens(2,3,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(2,3,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(2,3,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(2,1,3,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(2,2,3,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(2,3,3,j,ih)) &
+					+ cross_product(3)*(ham%bqfull35_3tens(3,3,1,j,ih)*emomM(1,ih,k) + ham%bqfull35_3tens(3,3,2,j,ih)*emomM(2,ih,k) + ham%bqfull35_3tens(3,3,3,j,ih)*emomM(3,ih,k) + &
+										emomM(1,ih,k)*ham%bqfull35_3tens(3,1,3,j,ih) + emomM(2,ih,j)*ham%bqfull35_3tens(3,2,3,j,ih) + emomM(3,ih,k)*ham%bqfull35_3tens(3,3,3,j,ih))
+			
+			field(1) = field(1) + 0.25*xterm
+			field(2) = field(2) + 0.25*yterm
+			field(3) = field(3) + 0.25*zterm
+		enddo
+	end subroutine bqfull35_field
+	
+
+    !!!!!!
+    subroutine bqfull36_field(i,k,field,Natom,Mensemble,emomM)
+		!.. Implicit declarations
+		implicit none
+		integer, intent(in) :: i !< Atom to calculate effective field for
+        integer, intent(in) :: k !< Current ensemble
+        integer, intent(in) :: Natom        !< Number of atoms in system
+        integer, intent(in) :: Mensemble    !< Number of ensembles
+        real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+        real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+        !
+        integer :: j, ih, x
+        real, dimension(3) :: cross_product  !ei x ex
+        real :: xterm, yterm, zterm
+        
+        ih=ham%aHam(i)
+        do j=1,ham%bqfull36listsize(ih)
+			x=ham%bqfull36list(j,i)
+			cross_product=0.0
+			cross_product(1) = emomM(2,ih,k)*emomM(3,x,k) - emomM(3,ih,k)*emomM(2,x,k)
+			cross_product(2) = emomM(3,ih,k)*emomM(1,x,k) - emomM(1,ih,k)*emomM(3,x,k)
+			cross_product(3) = emomM(1,ih,k)*emomM(2,x,k) - emomM(2,ih,k)*emomM(1,x,k)
+			!
+			xterm = emomM(2,x,k)*(emomM(1,ih,k)*ham%bqfull36_3tens(3,1,1,j,ih)*emomM(1,x,k) + emomM(1,ih,k)*ham%bqfull36_3tens(3,1,2,j,ih)*emomM(2,x,k) + emomM(1,ih,k)*ham%bqfull36_3tens(3,1,3,j,ih)*emomM(3,x,k) &
+								+ emomM(2,ih,k)*ham%bqfull36_3tens(3,2,1,j,ih)*emomM(1,x,k) + emomM(2,ih,k)*ham%bqfull36_3tens(3,2,2,j,ih)*emomM(2,x,k) + emomM(2,ih,k)*ham%bqfull36_3tens(3,2,3,j,ih)*emomM(3,x,k) &
+								- emomM(1,x,k)*ham%bqfull36_3tens(1,3,1,j,ih)*emomM(1,ih,k) - emomM(2,x,k)*ham%bqfull36_3tens(1,3,2,j,ih)*emomM(1,ih,k) - emomM(3,x,k)*ham%bqfull36_3tens(1,3,3,j,ih)*emomM(1,ih,k) &
+								- emomM(1,x,k)*ham%bqfull36_3tens(2,3,1,j,ih)*emomM(2,ih,k) - emomM(2,x,k)*ham%bqfull36_3tens(2,3,2,j,ih)*emomM(2,ih,k) - emomM(3,x,k)*ham%bqfull36_3tens(2,3,3,j,ih)*emomM(2,ih,k))&
+					+ emomM(3,x,k)*(emomM(1,x,k)*ham%bqfull36_3tens(1,2,1,j,ih)*emomM(1,ih,k) + emomM(2,x,k)*ham%bqfull36_3tens(1,2,1,j,ih)*emomM(1,ih,k) + emomM(3,x,k)*ham%bqfull36_3tens(1,2,3,j,ih)*emomM(1,ih,k) &
+								+ emomM(1,x,k)*ham%bqfull36_3tens(3,2,1,j,ih)*emomM(3,ih,k) + emomM(2,x,k)*ham%bqfull36_3tens(3,2,2,j,ih)*emomM(3,ih,k) + emomM(3,x,k)*ham%bqfull36_3tens(3,2,3,j,ih)*emomM(3,ih,k) &
+								- emomM(1,ih,k)*ham%bqfull36_3tens(2,1,1,j,ih)*emomM(1,x,k) - emomM(1,ih,k)*ham%bqfull36_3tens(2,1,2,j,ih)*emomM(2,x,k)	- emomM(1,ih,k)*ham%bqfull36_3tens(2,1,3,j,ih)*emomM(3,x,k)	&
+								- emomM(3,ih,k)*ham%bqfull36_3tens(2,3,1,j,ih)*emomM(1,x,k) - emomM(3,ih,k)*ham%bqfull36_3tens(2,3,2,j,ih)*emomM(2,x,k)	- emomM(3,ih,k)*ham%bqfull36_3tens(2,3,3,j,ih)*emomM(3,x,k))&
+					+ cross_product(2)*(ham%bqfull36_3tens(2,1,1,j,ih)*emomM(1,x,k) + ham%bqfull36_3tens(2,1,2,j,ih)*emomM(2,x,k) + ham%bqfull36_3tens(2,1,3,j,ih)*emomM(3,x,k)&
+										-emomM(1,x,k)*ham%bqfull36_3tens(1,2,1,j,ih) - emomM(2,x,k)*ham%bqfull36_3tens(1,2,2,j,ih) - emomM(3,x,k)*ham%bqfull36_3tens(1,2,3,j,ih)) &
+					+ cross_product(3)*(ham%bqfull36_3tens(3,1,1,j,ih)*emomM(1,x,k) + ham%bqfull36_3tens(3,1,2,j,ih)*emomM(2,x,k) + ham%bqfull36_3tens(3,1,3,j,ih)*emomM(3,x,k)&
+										-emomM(1,x,k)*ham%bqfull36_3tens(1,3,1,j,ih) - emomM(2,x,k)*ham%bqfull36_3tens(1,3,2,j,ih) - emomM(3,x,k)*ham%bqfull36_3tens(1,3,3,j,ih))
+			!
+			yterm = emomM(3,x,k)*(emomM(2,ih,k)*ham%bqfull36_3tens(1,2,1,j,ih)*emomM(1,x,k) + emomM(2,ih,k)*ham%bqfull36_3tens(1,2,2,j,ih)*emomM(2,x,k) + emomM(2,ih,k)*ham%bqfull36_3tens(1,2,3,j,ih)*emomM(3,x,k) &
+								+ emomM(3,ih,k)*ham%bqfull36_3tens(1,3,1,j,ih)*emomM(1,x,k) + emomM(3,ih,k)*ham%bqfull36_3tens(1,3,2,j,ih)*emomM(2,x,k) + emomM(3,ih,k)*ham%bqfull36_3tens(1,3,3,j,ih)*emomM(3,x,k) &
+								- emomM(1,x,k)*ham%bqfull36_3tens(2,1,1,j,ih)*emomM(2,ih,k) - emomM(2,x,k)*ham%bqfull36_3tens(2,1,2,j,ih)*emomM(2,ih,k) - emomM(1,x,k)*ham%bqfull36_3tens(2,1,3,j,ih)*emomM(2,ih,k) &
+								- emomM(1,x,k)*ham%bqfull36_3tens(3,1,1,j,ih)*emomM(3,ih,k) - emomM(2,x,k)*ham%bqfull36_3tens(3,1,2,j,ih)*emomM(3,ih,k) - emomM(3,x,k)*ham%bqfull36_3tens(3,1,3,j,ih)*emomM(3,ih,k))&
+					+ emomM(1,x,k)*(emomM(1,x,k)*ham%bqfull36_3tens(1,3,1,j,ih)*emomM(1,ih,k) + emomM(2,x,k)*ham%bqfull36_3tens(1,3,2,j,ih)*emomM(1,ih,k) + emomM(3,x,k)*ham%bqfull36_3tens(1,3,3,j,ih)*emomM(1,ih,k) &
+								+ emomM(1,x,k)*ham%bqfull36_3tens(2,3,1,j,ih)*emomM(2,ih,k) + emomM(2,x,k)*ham%bqfull36_3tens(2,3,2,j,ih)*emomM(2,ih,k) + emomM(3,x,k)*ham%bqfull36_3tens(2,3,3,j,ih)*emomM(2,ih,k) &
+								- emomM(1,ih,k)*ham%bqfull36_3tens(3,1,1,j,ih)*emomM(1,x,k) - emomM(1,ih,k)*ham%bqfull36_3tens(3,1,2,j,ih)*emomM(2,x,k) - emomM(1,ih,k)*ham%bqfull36_3tens(3,1,3,j,ih)*emomM(3,x,k) &
+								- emomM(2,ih,k)*ham%bqfull36_3tens(3,2,1,j,ih)*emomM(1,x,k) - emomM(2,ih,k)*ham%bqfull36_3tens(3,2,2,j,ih)*emomM(2,x,k) - emomM(2,ih,k)*ham%bqfull36_3tens(3,2,3,j,ih)*emomM(3,x,k))&
+					+ cross_product(1)*(ham%bqfull36_3tens(1,2,1,j,ih)*emomM(1,x,k) + ham%bqfull36_3tens(1,2,2,j,ih)*emomM(2,x,k) + ham%bqfull36_3tens(1,2,3,j,ih)*emomM(3,x,k) &
+										-emomM(1,x,k)*ham%bqfull36_3tens(2,1,1,j,ih) - emomM(2,x,k)*ham%bqfull36_3tens(2,1,2,j,ih) - emomM(3,x,k)*ham%bqfull36_3tens(2,1,3,j,ih))&
+					+ cross_product(3)*(ham%bqfull36_3tens(3,2,1,j,ih)*emomM(1,x,k) + ham%bqfull36_3tens(3,2,2,j,ih)*emomM(2,x,k) + ham%bqfull36_3tens(3,2,3,j,ih)*emomM(3,x,k) &
+										-emomM(1,x,k)*ham%bqfull36_3tens(2,3,1,j,ih) - emomM(2,x,k)*ham%bqfull36_3tens(2,3,2,j,ih) - emomM(3,x,k)*ham%bqfull36_3tens(2,3,3,j,ih))
+			!
+			zterm = emomM(1,x,k)*(emomM(1,ih,k)*ham%bqfull36_3tens(2,1,1,j,ih)*emomM(1,x,k) + emomM(1,ih,k)*ham%bqfull36_3tens(2,1,2,j,ih)*emomM(2,x,k) + emomM(1,ih,k)*ham%bqfull36_3tens(2,1,3,j,ih)*emomM(3,x,k) &
+								+ emomM(3,ih,k)*ham%bqfull36_3tens(2,3,1,j,ih)*emomM(1,x,k) + emomM(3,ih,k)*ham%bqfull36_3tens(2,3,2,j,ih)*emomM(2,x,k) + emomM(3,ih,k)*ham%bqfull36_3tens(2,3,3,j,ih)*emomM(3,x,k) &
+								- emomM(1,x,k)*ham%bqfull36_3tens(1,2,1,j,ih)*emomM(1,ih,k) - emomM(2,x,k)*ham%bqfull36_3tens(1,2,2,j,ih)*emomM(1,ih,k) - emomM(3,x,k)*ham%bqfull36_3tens(1,2,3,j,ih)*emomM(1,ih,k) &
+								- emomM(1,x,k)*ham%bqfull36_3tens(3,2,1,j,ih)*emomM(3,ih,k) - emomM(2,x,k)*ham%bqfull36_3tens(3,2,2,j,ih)*emomM(3,ih,k) - emomM(3,x,k)*ham%bqfull36_3tens(3,2,3,j,ih)*emomM(3,ih,k))&
+					+ emomM(2,x,k)*(emomM(1,x,k)*ham%bqfull36_3tens(2,1,1,j,ih)*emomM(2,ih,k) + emomM(2,x,k)*ham%bqfull36_3tens(2,1,2,j,ih)*emomM(2,ih,k) + emomM(3,x,k)*ham%bqfull36_3tens(2,1,3,j,ih)*emomM(2,ih,k) &
+								+ emomM(1,x,k)*ham%bqfull36_3tens(3,1,1,j,ih)*emomM(3,ih,k) + emomM(2,x,k)*ham%bqfull36_3tens(3,1,2,j,ih)*emomM(3,ih,k) + emomM(3,x,k)*ham%bqfull36_3tens(3,1,3,j,ih)*emomM(3,ih,k) &
+								- emomM(2,ih,k)*ham%bqfull36_3tens(1,2,1,j,ih)*emomM(1,x,k) - emomM(2,ih,k)*ham%bqfull36_3tens(1,2,2,j,ih)*emomM(2,x,k) - emomM(2,ih,k)*ham%bqfull36_3tens(1,2,3,j,ih)*emomM(3,x,k) &
+								- emomM(3,ih,k)*ham%bqfull36_3tens(1,3,1,j,ih)*emomM(1,x,k) - emomM(3,ih,k)*ham%bqfull36_3tens(1,3,2,j,ih)*emomM(2,x,k) - emomM(3,ih,k)*ham%bqfull36_3tens(1,3,3,j,ih)*emomM(3,x,k))&
+					+ cross_product(1)*(ham%bqfull36_3tens(1,3,1,j,ih)*emomM(1,x,k) + ham%bqfull36_3tens(1,3,2,j,ih)*emomM(2,x,k) + ham%bqfull36_3tens(1,3,3,j,ih)*emomM(3,x,k) &
+										-emomM(1,x,k)*ham%bqfull36_3tens(3,1,1,j,ih) - emomM(2,x,k)*ham%bqfull36_3tens(3,1,2,j,ih) - emomM(3,x,k)*ham%bqfull36_3tens(3,1,3,j,ih))&
+					+ cross_product(2)*(ham%bqfull36_3tens(2,3,1,j,ih)*emomM(1,x,k) + ham%bqfull36_3tens(2,3,2,j,ih)*emomM(2,x,k) + ham%bqfull36_3tens(2,3,3,j,ih)*emomM(3,x,k) &
+										-emomM(1,x,k)*ham%bqfull36_3tens(3,3,1,j,ih) - emomM(2,x,k)*ham%bqfull36_3tens(3,3,2,j,ih) - emomM(3,x,k)*ham%bqfull36_3tens(3,3,3,j,ih))
+			
+
+			field(1) = field(1) + 0.25*xterm
+			field(2) = field(2) + 0.25*yterm
+			field(3) = field(3) + 0.25*zterm
+		end do
+	end subroutine bqfull36_field
+	
+	
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module HamiltonianActions
