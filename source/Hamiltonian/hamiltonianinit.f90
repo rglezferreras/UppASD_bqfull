@@ -574,6 +574,316 @@ contains
          end if
       end if
 
+      !!!!!!	!!!!!!		!!!!!!
+      !!!!!!	!!!!!!		!!!!!!
+      !!!!!!	!!!!!!		!!!!!!
+      !!!!!!	!!!!!!		!!!!!!
+      !!!!!!	!!!!!!		!!!!!!
+      
+      !If biquadratic 4spin-2site H11 interaction
+      if (ham_inp%do_bqfull11==1) then
+         !Mount the 4spin-2site biquadratic terms
+         write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H11'
+         ! The zero is the symmetry of the system (sym==type of symmetry in the system) we need to choose wether we allow for symmetry operations in the bq file or not. I would initially recommend setting to zero (0)
+         call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+            Bas,ham%max_no_neigh_bqfull11,ham_inp%max_no_shells_bqfull11,max_no_equiv,0,ham_inp%bqfull11_nn, &
+            ham_inp%bqfull11_redcoord,nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+         write(*,'(a)') ' done'
+
+         !Allocate the hamiltonian term
+         call allocate_bqfull11data(Natom,nHam,ham%max_no_neigh_bqfull11,1) !flag==1 to allocate
+	
+         !Transform data to general structure
+         write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H11'
+         call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype, &
+            ham%max_no_neigh_bqfull11,max_no_equiv,ham_inp%max_no_shells_bqfull11,ham%bqfull11listsize, &
+			ham_inp%bqfull11_nn,ham%bqfull11list,ham%bqfull11_tens,nm,nmdim,ham_inp%bqfull11_tens, &
+			ham%fs_nlist,ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,ammom_inp, &
+            9,1, do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+         write(*,'(a)') ' done'
+	
+         !Deallocate large neighbour map
+         call deallocate_nm()
+	
+         !Add print option??
+      endif
+      
+      !If biquadratic 4spin-2site H21 intertacion
+      if (ham_inp%do_bqfull21==1) then
+	     !Mount the 4spin-2site biquadratic terms
+	     write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H21'
+	     ! The zero is the symmetry of the system (sym==type of symmetry in the system) we need to choose whether we allow for symmetry operations in the bq file or not. I would initially recommend setting to zero (0)
+	     call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+            Bas,ham%max_no_neigh_bqfull21,ham_inp%max_no_shells_bqfull21,max_no_equiv,0,ham_inp%bqfull21_nn, &
+            ham_inp%bqfull21_redcoord,nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+	     write(*,'(a)') ' done'
+
+	     !Allocate the hamiltonian term
+	     call allocate_bqfull21data(Natom,nHam,ham%max_no_neigh_bqfull21,1) !flag==1 to allocate
+	
+	     !Transform data to general structure
+	     write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H21'
+	     call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype, &
+			ham%max_no_neigh_bqfull21,max_no_equiv,ham_inp%max_no_shells_bqfull21,ham%bqfull21listsize, &
+			ham_inp%bqfull21_nn,ham%bqfull21list,ham%bqfull21,nm,nmdim,ham_inp%bqfull21, &
+			ham%fs_nlist,ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,ammom_inp, &
+            1,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+	     write(*,'(a)') ' done'
+	
+	     !Deallocate large neighbour map
+	     call deallocate_nm()
+	
+	     !Add print option??
+      endif
+
+      !If biquadratic 4spin-2site H22 interaction
+      if (ham_inp%do_bqfull22==1) then
+         !Mount the 4spin-2site biquadratic terms
+         write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H22'
+         ! The zero is the symmetry of the system (sym==type of symmetry in the system) we need to choose wether we allow for symmetry operations in the bq file or not. I would initially recommend setting to zero (0)
+         call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+            Bas,ham%max_no_neigh_bqfull22,ham_inp%max_no_shells_bqfull22,max_no_equiv,0,ham_inp%bqfull22_nn, &
+            ham_inp%bqfull22_redcoord,nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+         write(*,'(a)') ' done'
+
+         !Allocate the hamiltonian term
+         call allocate_bqfull22data(Natom,nHam,ham%max_no_neigh_bqfull22,1) !flag==1 to allocate
+	
+         !Transform data to general structure
+         write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H22'
+         call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype, &
+			ham%max_no_neigh_bqfull22,max_no_equiv,ham_inp%max_no_shells_bqfull22,ham%bqfull22listsize, &
+			ham_inp%bqfull22_nn,ham%bqfull22list,ham%bqfull22_tens,nm,nmdim,ham_inp%bqfull22_tens, &
+			ham%fs_nlist,ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,ammom_inp, &
+            9,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+         write(*,'(a)') ' done'
+	
+         !Deallocate large neighbour map
+         call deallocate_nm()
+	
+         !Add print option??
+      endif
+      
+      
+      !If biquadratic 4spin-2site H23 interaction
+      if(ham_inp%do_bqfull23==1) then
+         ! Allocate and mount DM Hamiltonian
+         call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+			Bas,ham%max_no_neigh_bqfull23,ham_inp%max_no_shells_bqfull23,&
+			max_no_equiv,0,ham_inp%bqfull23_nn,ham_inp%bqfull23_redcoord,&
+            nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+         write(*,'(a)') ' done'
+
+
+         call allocate_bqfull23data(Natom,nHam,ham%max_no_neigh_bqfull23,1)
+
+         ! Transform data to general structure
+         write (*,'(2x,a)',advance='no') 'Mount Dzyaloshinskii-Moriya Hamiltonian'
+         call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype,    &
+            ham%max_no_neigh_bqfull23,max_no_equiv,ham_inp%max_no_shells_bqfull23,ham%bqfull23listsize,ham_inp%bqfull23_nn,   &
+            ham%bqfull23list,ham%bqfull23_vec,nm,nmdim,ham_inp%bqfull23_vec,ham%fs_nlist,&
+            ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,&
+            ammom_inp,3,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+         write(*,'(a)') ' done'
+
+
+         ! Deallocate the large neighbour map.
+         call deallocate_nm()
+
+         ! Print DM interactions
+         !if((do_prnstruct==1.or.do_prnstruct==4).and.do_cluster/='Y') then
+            !write(*,'(2x,a)',advance='no') "Print Dzyaloshinskii-Moriya interactions"
+            !call prn_dmcoup(NA,Natom,Nchmax,do_ralloy,Natom_full,ham%max_no_neigh_bqfull23,&
+            !   anumb,atype,ham%dmlistsize,asite_ch,achem_ch,ham%dmlist,coord,       &
+            !   ammom_inp,ham%dm_vect,simid)
+            !write(*,'(a)') ' done'
+      end if
+
+
+      !If biquadratic 4spin-2site H31 intertacion
+      if (ham_inp%do_bqfull31==1) then
+	     !Mount the 4spin-2site biquadratic terms
+	     write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H31'
+	     ! The zero is the symmetry of the system (sym==type of symmetry in the system) we need to choose whether we allow for symmetry operations in the bq file or not. I would initially recommend setting to zero (0)
+	     call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+            Bas,ham%max_no_neigh_bqfull31,ham_inp%max_no_shells_bqfull31,max_no_equiv,0,ham_inp%bqfull31_nn, &
+            ham_inp%bqfull31_redcoord,nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+	     write(*,'(a)') ' done'
+
+	     !Allocate the hamiltonian term
+	     call allocate_bqfull31data(Natom,nHam,ham%max_no_neigh_bqfull31,1) !flag==1 to allocate
+	
+	     !Transform data to general structure
+	     write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H31'
+	     call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype, &
+			ham%max_no_neigh_bqfull31,max_no_equiv,ham_inp%max_no_shells_bqfull31,ham%bqfull31listsize, &
+			ham_inp%bqfull31_nn,ham%bqfull31list,ham%bqfull31,nm,nmdim,ham_inp%bqfull31, &
+			ham%fs_nlist,ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,ammom_inp, &
+            1,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+	     write(*,'(a)') ' done'
+	
+	     !Deallocate large neighbour map
+	     call deallocate_nm()
+	
+	     !Add print option??
+      endif
+
+
+      !If biquadratic 4spin-2site H32 interaction
+      if (ham_inp%do_bqfull32==1) then
+         !Mount the 4spin-2site biquadratic terms
+         write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H32'
+         ! The zero is the symmetry of the system (sym==type of symmetry in the system) we need to choose wether we allow for symmetry operations in the bq file or not. I would initially recommend setting to zero (0)
+         call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+            Bas,ham%max_no_neigh_bqfull32,ham_inp%max_no_shells_bqfull32,max_no_equiv,0,ham_inp%bqfull32_nn, &
+            ham_inp%bqfull32_redcoord,nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+         write(*,'(a)') ' done'
+
+         !Allocate the hamiltonian term
+         call allocate_bqfull32data(Natom,nHam,ham%max_no_neigh_bqfull32,1) !flag==1 to allocate
+	
+         !Transform data to general structure
+         write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H32'
+         call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype, &
+			ham%max_no_neigh_bqfull32,max_no_equiv,ham_inp%max_no_shells_bqfull32,ham%bqfull32listsize, &
+			ham_inp%bqfull32_nn,ham%bqfull32list,ham%bqfull32_tens,nm,nmdim,ham_inp%bqfull32_tens, &
+			ham%fs_nlist,ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,ammom_inp, &
+            9,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+         write(*,'(a)') ' done'
+	
+         !Deallocate large neighbour map
+         call deallocate_nm()
+	
+         !Add print option??
+      endif
+      
+      
+      !If biquadratic 4spin-2site H33 interaction
+      if (ham_inp%do_bqfull33==1) then
+         !Mount the 4spin-2site biquadratic terms
+         write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H33'
+         ! The zero is the symmetry of the system (sym==type of symmetry in the system) we need to choose wether we allow for symmetry operations in the bq file or not. I would initially recommend setting to zero (0)
+         call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+            Bas,ham%max_no_neigh_bqfull33,ham_inp%max_no_shells_bqfull33,max_no_equiv,0,ham_inp%bqfull33_nn, &
+            ham_inp%bqfull33_redcoord,nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+         write(*,'(a)') ' done'
+
+         !Allocate the hamiltonian term
+         call allocate_bqfull33data(Natom,nHam,ham%max_no_neigh_bqfull33,1) !flag==1 to allocate
+	
+         !Transform data to general structure
+         write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H33'
+         call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype, &
+			ham%max_no_neigh_bqfull33,max_no_equiv,ham_inp%max_no_shells_bqfull33,ham%bqfull33listsize, &
+			ham_inp%bqfull33_nn,ham%bqfull33list,ham%bqfull33_tens,nm,nmdim,ham_inp%bqfull33_tens, &
+			ham%fs_nlist,ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,ammom_inp, &
+            9,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+         write(*,'(a)') ' done'
+	
+         !Deallocate large neighbour map
+         call deallocate_nm()
+	
+         !Add print option??
+      endif
+
+
+      !If biquadratic 4spin-2site H34 interaction
+      if(ham_inp%do_bqfull34==1) then
+         ! Allocate and mount DM Hamiltonian
+         call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+			Bas,ham%max_no_neigh_bqfull34,ham_inp%max_no_shells_bqfull34,&
+			max_no_equiv,0,ham_inp%bqfull34_nn,ham_inp%bqfull34_redcoord,&
+            nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+         write(*,'(a)') ' done'
+
+
+         call allocate_bqfull34data(Natom,nHam,ham%max_no_neigh_bqfull34,1)
+
+         ! Transform data to general structure
+         write (*,'(2x,a)',advance='no') 'Mount Dzyaloshinskii-Moriya Hamiltonian'
+         call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype,    &
+            ham%max_no_neigh_bqfull34,max_no_equiv,ham_inp%max_no_shells_bqfull34,ham%bqfull34listsize,ham_inp%bqfull34_nn,   &
+            ham%bqfull34list,ham%bqfull34_vec,nm,nmdim,ham_inp%bqfull34_vec,ham%fs_nlist,&
+            ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,&
+            ammom_inp,3,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+         write(*,'(a)') ' done'
+
+
+         ! Deallocate the large neighbour map.
+         call deallocate_nm()
+
+         ! Print DM interactions
+         !if((do_prnstruct==1.or.do_prnstruct==4).and.do_cluster/='Y') then
+            !write(*,'(2x,a)',advance='no') "Print Dzyaloshinskii-Moriya interactions"
+            !call prn_dmcoup(NA,Natom,Nchmax,do_ralloy,Natom_full,ham%max_no_neigh_bqfull34,&
+            !   anumb,atype,ham%dmlistsize,asite_ch,achem_ch,ham%dmlist,coord,       &
+            !   ammom_inp,ham%dm_vect,simid)
+            !write(*,'(a)') ' done'
+      end if
+      
+
+      !If biquadratic 4spin-2site H35 interaction
+      if (ham_inp%do_bqfull35==1) then
+         !Mount the 4spin-2site biquadratic terms
+         write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H35'
+         ! The zero is the symmetry of the system (sym==type of symmetry in the system) we need to choose wether we allow for symmetry operations in the bq file or not. I would initially recommend setting to zero (0)
+         call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+            Bas,ham%max_no_neigh_bqfull35,ham_inp%max_no_shells_bqfull35,max_no_equiv,0,ham_inp%bqfull35_nn, &
+            ham_inp%bqfull35_redcoord,nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+         write(*,'(a)') ' done'
+
+         !Allocate the hamiltonian term
+         call allocate_bqfull35data(Natom,nHam,ham%max_no_neigh_bqfull35,1) !flag==1 to allocate !!****
+	
+         !Transform data to general structure
+         write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H35'
+         call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype, &
+			ham%max_no_neigh_bqfull35,max_no_equiv,ham_inp%max_no_shells_bqfull35,ham%bqfull35listsize, &
+			ham_inp%bqfull35_nn,ham%bqfull35list,ham%bqfull35_3tens,nm,nmdim,ham_inp%bqfull35_3tens, &
+			ham%fs_nlist,ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,ammom_inp, &
+            27,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+         write(*,'(a)') ' done'
+	
+         !Deallocate large neighbour map
+         call deallocate_nm()
+	
+         !Add print option??
+      endif
+
+
+      !If biquadratic 4spin-2site H36 interaction
+      if (ham_inp%do_bqfull36==1) then
+         !Mount the 4spin-2site biquadratic terms
+         write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H36'
+         ! The zero is the symmetry of the system (sym==type of symmetry in the system) we need to choose wether we allow for symmetry operations in the bq file or not. I would initially recommend setting to zero (0)
+         call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
+            Bas,ham%max_no_neigh_bqfull36,ham_inp%max_no_shells_bqfull36,max_no_equiv,0,ham_inp%bqfull36_nn, &
+            ham_inp%bqfull36_redcoord,nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
+         write(*,'(a)') ' done'
+
+         !Allocate the hamiltonian term
+         call allocate_bqfull36data(Natom,nHam,ham%max_no_neigh_bqfull36,1) !flag==1 to allocate !!****
+	
+         !Transform data to general structure
+         write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H36'
+         call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype, &
+			ham%max_no_neigh_bqfull36,max_no_equiv,ham_inp%max_no_shells_bqfull36,ham%bqfull36listsize, &
+			ham_inp%bqfull36_nn,ham%bqfull36list,ham%bqfull36_3tens,nm,nmdim,ham_inp%bqfull36_3tens, &
+			ham%fs_nlist,ham%fs_nlistsize,do_ralloy,Natom_full,Nchmax,atype_ch,asite_ch,achem_ch,ammom_inp, &
+            27,1,do_sortcoup,do_lsf,ham%nind,lsf_field,ham_inp%map_multiple)
+         write(*,'(a)') ' done'
+	
+         !Deallocate large neighbour map
+         call deallocate_nm()
+	
+         !Add print option??
+      endif
+      !!!!!!	!!!!!!		!!!!!!
+      !!!!!!	!!!!!!		!!!!!!
+      !!!!!!	!!!!!!		!!!!!!
+      !!!!!!	!!!!!!		!!!!!!
+
+
       ! If LSF
       if(do_lsf=='Y') then
          write (*,'(2x,a)',advance='no') 'Set up moments map for Longitudial Fluctuation'
