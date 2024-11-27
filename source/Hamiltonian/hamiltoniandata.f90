@@ -617,4 +617,480 @@ contains
 
    end subroutine scalar_to_tensor
 
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H11
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull11data(Natom,nHam,max_no_neigh_bqfull11,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull11 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H11)
+      integer, intent(in) 			:: flag						!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+
+      if(flag>0) then
+         allocate(ham%bqfull11listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull11listsize))*kind(ham%bqfull11listsize),'bqfull11listsize','allocate_bqfull11data')
+		 ham%bqfull11listsize=0
+		 !
+		 allocate(ham%bqfull11list(max_no_neigh_bqfull11,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull11list))*kind(ham%bqfull11list),'bqfull11list','allocate_bqfull11data')
+		 ham%bqfull11list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull11_tens(3,3,max_no_neigh_bqfull11,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull11_tens))*kind(ham%bqfull11_tens),'bqfull11_tens','allocate_bqfull11data')
+		 ham%bqfull11_tens=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull11listsize))*kind(ham%bqfull11listsize)
+		 deallocate(ham%bqfull11listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull11listsize','allocate_bqfull11data')
+		 !
+		 i_all=-product(shape(ham%bqfull11list))*kind(ham%bqfull11list)
+		 deallocate(ham%bqfull11list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull11list','allocate_bqfull11data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull11_tens))*kind(ham%bqfull11_tens)
+		 deallocate(ham%bqfull11_tens,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull11_tens','allocate_bqfull11data')
+      end if
+   end subroutine allocate_bqfull11data
+   
+   
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H21
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull21data(Natom,nHam,max_no_neigh_bqfull21,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull21 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H21)
+      integer, intent(in) 			:: flag						!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+
+      if(flag>0) then
+         allocate(ham%bqfull21listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull21listsize))*kind(ham%bqfull21listsize),'bqfull21listsize','allocate_bqfull21data')
+		 ham%bqfull21listsize=0
+		 !
+		 allocate(ham%bqfull21list(max_no_neigh_bqfull21,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull21list))*kind(ham%bqfull21list),'bqfull21list','allocate_bqfull21data')
+		 ham%bqfull21list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull21(max_no_neigh_bqfull21,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull21))*kind(ham%bqfull21),'bqfull21','allocate_bqfull21data')
+		 ham%bqfull21=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull21listsize))*kind(ham%bqfull21listsize)
+		 deallocate(ham%bqfull21listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull21listsize','allocate_bqfull21data')
+		 !
+		 i_all=-product(shape(ham%bqfull21list))*kind(ham%bqfull21list)
+		 deallocate(ham%bqfull21list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull21list','allocate_bqfull21data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull21))*kind(ham%bqfull21)
+		 deallocate(ham%bqfull21,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull21','allocate_bqfull21data')
+      end if
+   end subroutine allocate_bqfull21data
+
+
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H22
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull22data(Natom,nHam,max_no_neigh_bqfull22,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull22 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H22)
+      integer, intent(in) 			:: flag 					!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+      
+      if(flag>0) then
+         allocate(ham%bqfull22listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull22listsize))*kind(ham%bqfull22listsize),'bqfull22listsize','allocate_bqfull22data')
+		 ham%bqfull22listsize=0
+		 !
+		 allocate(ham%bqfull22list(max_no_neigh_bqfull22,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull22list))*kind(ham%bqfull22list),'bqfull22list','allocate_bqfull22data')
+		 ham%bqfull22list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull22_tens(3,3,max_no_neigh_bqfull22,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull22_tens))*kind(ham%bqfull22_tens),'bqfull22_tens','allocate_bqfull22data')
+		 ham%bqfull22_tens=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull22listsize))*kind(ham%bqfull22listsize)
+		 deallocate(ham%bqfull22listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull22listsize','allocate_bqfull22data')
+		 !
+		 i_all=-product(shape(ham%bqfull22list))*kind(ham%bqfull22list)
+		 deallocate(ham%bqfull22list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull22list','allocate_bqfull22data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull22_tens))*kind(ham%bqfull22_tens)
+		 deallocate(ham%bqfull22_tens,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull22_tens','allocate_bqfull22data')
+      end if
+   end subroutine allocate_bqfull22data
+   
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H23
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull23data(Natom,nHam,max_no_neigh_bqfull23,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull23 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H23)
+      integer, intent(in) 			:: flag 					!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+    
+      if(flag>0) then
+         allocate(ham%bqfull23listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull23listsize))*kind(ham%bqfull23listsize),'bqfull23listsize','allocate_bqfull23data')
+		 ham%bqfull23listsize=0
+		 !
+		 allocate(ham%bqfull23list(max_no_neigh_bqfull23,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull23list))*kind(ham%bqfull23list),'bqfull23list','allocate_bqfull23data')
+		 ham%bqfull23list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull23_vec(3,max_no_neigh_bqfull23,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull23_vec))*kind(ham%bqfull23_vec),'bqfull23_vec','allocate_bqfull23data')
+		 ham%bqfull23_vec=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull23listsize))*kind(ham%bqfull23listsize)
+		 deallocate(ham%bqfull23listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull23listsize','allocate_bqfull23data')
+		 !
+		 i_all=-product(shape(ham%bqfull23list))*kind(ham%bqfull23list)
+		 deallocate(ham%bqfull23list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull23list','allocate_bqfull23data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull23_vec))*kind(ham%bqfull23_vec)
+		 deallocate(ham%bqfull23_vec,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull23_vec','allocate_bqfull23data')
+      end if
+   end subroutine allocate_bqfull23data
+   
+   
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H31
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull31data(Natom,nHam,max_no_neigh_bqfull31,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull31 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H31)
+      integer, intent(in) 			:: flag						!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+
+      if(flag>0) then
+         allocate(ham%bqfull31listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull31listsize))*kind(ham%bqfull31listsize),'bqfull31listsize','allocate_bqfull31data')
+		 ham%bqfull31listsize=0
+		 !
+		 allocate(ham%bqfull31list(max_no_neigh_bqfull31,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull31list))*kind(ham%bqfull31list),'bqfull31list','allocate_bqfull31data')
+		 ham%bqfull31list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull31(max_no_neigh_bqfull31,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull31))*kind(ham%bqfull31),'bqfull31','allocate_bqfull31data')
+		 ham%bqfull31=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull31listsize))*kind(ham%bqfull31listsize)
+		 deallocate(ham%bqfull31listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull31listsize','allocate_bqfull31data')
+		 !
+		 i_all=-product(shape(ham%bqfull31list))*kind(ham%bqfull31list)
+		 deallocate(ham%bqfull31list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull31list','allocate_bqfull31data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull31))*kind(ham%bqfull31)
+		 deallocate(ham%bqfull31,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull31','allocate_bqfull31data')
+      end if
+   end subroutine allocate_bqfull31data
+
+
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H32
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull32data(Natom,nHam,max_no_neigh_bqfull32,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull32 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H32)
+      integer, intent(in) 			:: flag 					!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+      
+      if(flag>0) then
+         allocate(ham%bqfull32listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull32listsize))*kind(ham%bqfull32listsize),'bqfull32listsize','allocate_bqfull32data')
+		 ham%bqfull32listsize=0
+		 !
+		 allocate(ham%bqfull32list(max_no_neigh_bqfull32,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull32list))*kind(ham%bqfull32list),'bqfull32list','allocate_bqfull32data')
+		 ham%bqfull32list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull32_tens(3,3,max_no_neigh_bqfull32,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull32_tens))*kind(ham%bqfull32_tens),'bqfull32_tens','allocate_bqfull32data')
+		 ham%bqfull32_tens=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull32listsize))*kind(ham%bqfull32listsize)
+		 deallocate(ham%bqfull32listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull32listsize','allocate_bqfull32data')
+		 !
+		 i_all=-product(shape(ham%bqfull32list))*kind(ham%bqfull32list)
+		 deallocate(ham%bqfull32list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull32list','allocate_bqfull32data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull32_tens))*kind(ham%bqfull32_tens)
+		 deallocate(ham%bqfull32_tens,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull32_tens','allocate_bqfull32data')
+      end if
+   end subroutine allocate_bqfull32data
+   
+
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H33
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull33data(Natom,nHam,max_no_neigh_bqfull33,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull33 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H33)
+      integer, intent(in) 			:: flag 					!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+      
+      if(flag>0) then
+         allocate(ham%bqfull33listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull33listsize))*kind(ham%bqfull33listsize),'bqfull33listsize','allocate_bqfull33data')
+		 ham%bqfull33listsize=0
+		 !
+		 allocate(ham%bqfull33list(max_no_neigh_bqfull33,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull33list))*kind(ham%bqfull33list),'bqfull33list','allocate_bqfull33data')
+		 ham%bqfull33list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull33_tens(3,3,max_no_neigh_bqfull33,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull33_tens))*kind(ham%bqfull33_tens),'bqfull33_tens','allocate_bqfull33data')
+		 ham%bqfull33_tens=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull33listsize))*kind(ham%bqfull33listsize)
+		 deallocate(ham%bqfull33listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull33listsize','allocate_bqfull33data')
+		 !
+		 i_all=-product(shape(ham%bqfull33list))*kind(ham%bqfull33list)
+		 deallocate(ham%bqfull33list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull33list','allocate_bqfull33data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull33_tens))*kind(ham%bqfull33_tens)
+		 deallocate(ham%bqfull33_tens,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull33_tens','allocate_bqfull33data')
+      end if
+   end subroutine allocate_bqfull33data
+
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H34
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull34data(Natom,nHam,max_no_neigh_bqfull34,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull34 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H34)
+      integer, intent(in) 			:: flag 					!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+    
+      if(flag>0) then
+         allocate(ham%bqfull34listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull34listsize))*kind(ham%bqfull34listsize),'bqfull34listsize','allocate_bqfull34data')
+		 ham%bqfull34listsize=0
+		 !
+		 allocate(ham%bqfull34list(max_no_neigh_bqfull34,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull34list))*kind(ham%bqfull34list),'bqfull34list','allocate_bqfull34data')
+		 ham%bqfull34list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull34_vec(3,max_no_neigh_bqfull34,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull34_vec))*kind(ham%bqfull34_vec),'bqfull34_vec','allocate_bqfull34data')
+		 ham%bqfull34_vec=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull34listsize))*kind(ham%bqfull34listsize)
+		 deallocate(ham%bqfull34listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull34listsize','allocate_bqfull34data')
+		 !
+		 i_all=-product(shape(ham%bqfull34list))*kind(ham%bqfull34list)
+		 deallocate(ham%bqfull34list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull34list','allocate_bqfull34data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull34_vec))*kind(ham%bqfull34_vec)
+		 deallocate(ham%bqfull34_vec,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull34_vec','allocate_bqfull34data')
+      end if
+   end subroutine allocate_bqfull34data
+ 
+
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H35
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull35data(Natom,nHam,max_no_neigh_bqfull35,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull35 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H35)
+      integer, intent(in) 			:: flag 					!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+    
+      if(flag>0) then
+         allocate(ham%bqfull35listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull35listsize))*kind(ham%bqfull35listsize),'bqfull35listsize','allocate_bqfull35data')
+		 ham%bqfull35listsize=0
+		 !
+		 allocate(ham%bqfull35list(max_no_neigh_bqfull35,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull35list))*kind(ham%bqfull35list),'bqfull35list','allocate_bqfull35data')
+		 ham%bqfull35list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull35_3tens(3,3,3,max_no_neigh_bqfull35,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull35_3tens))*kind(ham%bqfull35_3tens),'bqfull35_3tens','allocate_bqfull35data')
+		 ham%bqfull35_3tens=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull35listsize))*kind(ham%bqfull35listsize)
+		 deallocate(ham%bqfull35listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull35listsize','allocate_bqfull35data')
+		 !
+		 i_all=-product(shape(ham%bqfull35list))*kind(ham%bqfull35list)
+		 deallocate(ham%bqfull35list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull35list','allocate_bqfull35data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull35_3tens))*kind(ham%bqfull35_3tens)
+		 deallocate(ham%bqfull35_3tens,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull35_3tens','allocate_bqfull35data')
+      end if
+   end subroutine allocate_bqfull35data
+
+   !----------------------------------------------------------------------------
+   !> @brief Allocate arrays for biquadratic 4spin-2site interaction H36
+   !----------------------------------------------------------------------------
+   subroutine allocate_bqfull36data(Natom,nHam,max_no_neigh_bqfull36,flag)
+      implicit none
+
+      integer, optional, intent(in) :: Natom 					!< Number of atoms in system
+      integer, optional, intent(in) :: nHam 					!< Number of atoms in Hamiltonian
+      integer, optional, intent(in) :: max_no_neigh_bqfull36 	! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H36)
+      integer, intent(in) 			:: flag 					!< Allocate or deallocate (1/-1)
+      integer :: i_all, i_stat
+    
+      if(flag>0) then
+         allocate(ham%bqfull36listsize(nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull36listsize))*kind(ham%bqfull36listsize),'bqfull36listsize','allocate_bqfull36data')
+		 ham%bqfull36listsize=0
+		 !
+		 allocate(ham%bqfull36list(max_no_neigh_bqfull36,Natom),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull36list))*kind(ham%bqfull36list),'bqfull36list','allocate_bqfull36data')
+		 ham%bqfull36list=0
+		 !
+		 !allocate(ham%aHam(Natom),stat=i_stat)
+		 !call memocc(i_stat,product(shape(ham%aHam))*kind(ham%aHam),'aHam','allocate_hamiltoniandata')
+		 !ham%aHam=0
+		 !
+		 allocate(ham%bqfull36_3tens(3,3,3,max_no_neigh_bqfull36,nHam),stat=i_stat)
+		 call memocc(i_stat,product(shape(ham%bqfull36_3tens))*kind(ham%bqfull36_3tens),'bqfull36_3tens','allocate_bqfull36data')
+		 ham%bqfull36_3tens=0.0_dblprec
+      else
+		 i_all=-product(shape(ham%bqfull36listsize))*kind(ham%bqfull36listsize)
+		 deallocate(ham%bqfull36listsize,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull36listsize','allocate_bqfull36data')
+		 !
+		 i_all=-product(shape(ham%bqfull36list))*kind(ham%bqfull36list)
+		 deallocate(ham%bqfull36list,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull36list','allocate_bqfull36data')
+		 !
+		 !i_all=-product(shape(ham%aHam))*kind(ham%aHam)
+		 !deallocate(ham%aHam,stat=i_stat)
+		 !call memocc(i_stat,i_all,'aHam','allocate_hamiltoniandata')
+		 !
+		 i_all=-product(shape(ham%bqfull36_3tens))*kind(ham%bqfull36_3tens)
+		 deallocate(ham%bqfull36_3tens,stat=i_stat)
+		 call memocc(i_stat,i_all,'bqfull36_3tens','allocate_bqfull36data')
+      end if
+   end subroutine allocate_bqfull36data
+
 end module HamiltonianData
