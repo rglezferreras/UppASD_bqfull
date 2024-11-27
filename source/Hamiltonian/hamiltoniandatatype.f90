@@ -97,6 +97,71 @@ module HamiltonianDataType
       ! Variables for dipolar
       real(dblprec), dimension(:,:,:,:), allocatable :: Qdip         !< Matrix for dipole-dipole interaction
       real(dblprec), dimension(:,:,:,:), allocatable :: Qdip_macro   !< Matrix for macro spin dipole-dipole interaction
+
+      !!!!!!
+      !!!!!!
+      ! Variables for Biquadratic interaction 4spin-2site H11
+      integer :: max_no_neigh_bqfull11									! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H11)
+      integer, dimension(:), allocatable :: bqfull11listsize			! Size of neighbour list for 4spin-2site Biquadratic Interaction (H11)
+      integer, dimension(:,:), allocatable :: bqfull11list				! Neighbours list for 4spin-2site Biquadratic Interaction (H11)
+      real(dblprec), dimension(:,:,:,:), allocatable :: bqfull11_tens 	! Exchange tensor for 4spin-2site Biquadratic Interaction (H11)
+      
+      ! Variables for Biquadratic interaction 4spin-2site H21
+      integer :: max_no_neigh_bqfull21									! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H21)
+      integer, dimension(:), allocatable :: bqfull21listsize			! Size of neighbour list for 4spin-2site Biquadratic Interaction (H21)
+      integer, dimension(:,:), allocatable :: bqfull21list				! Neighbours list for 4spin-2site Biquadratic Interaction (H21)
+      real(dblprec), dimension(:,:), allocatable :: bqfull21			! Exchange scalar for 4spin-2site Biquadratic Interaction (H21)
+      
+      ! Variables for Biquadratic interaction 4spin-2site H22
+      integer :: max_no_neigh_bqfull22									! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H22)
+      integer, dimension(:), allocatable :: bqfull22listsize			! Size of neighbour list for 4spin-2site Biquadratic Interaction (H22)
+      integer, dimension(:,:), allocatable :: bqfull22list				! Neighbours list for 4spin-2site Biquadratic Interaction (H22)
+      real(dblprec), dimension(:,:,:,:), allocatable :: bqfull22_tens 	! Exchange tensor for 4spin-2site Biquadratic Interaction (H22)
+      
+      ! Variables for Biquadratic interaction 4spin-2site H23
+      integer :: max_no_neigh_bqfull23									! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H23)
+      integer, dimension(:), allocatable :: bqfull23listsize				! Size of neighbour list for 4spin-2site Biquadratic Interaction (H23)
+      integer, dimension(:,:), allocatable :: bqfull23list				! Neighbours list for 4spin-2site Biquadratic Interaction (H23)
+      real(dblprec), dimension(:,:,:), allocatable :: bqfull23_vec		! Exchange tensor for 4spin-2site Biquadratic Interaction (H23)
+
+      ! Variables for Biquadratic interaction 4spin-2site H31
+      integer :: max_no_neigh_bqfull31									! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H31)
+      integer, dimension(:), allocatable :: bqfull31listsize			! Size of neighbour list for 4spin-2site Biquadratic Interaction (H31)
+      integer, dimension(:,:), allocatable :: bqfull31list				! Neighbours list for 4spin-2site Biquadratic Interaction (H31)
+      real(dblprec), dimension(:,:), allocatable :: bqfull31			! Exchange scalar for 4spin-2site Biquadratic Interaction (H31)
+
+      ! Variables for Biquadratic interaction 4spin-2site H32
+      integer :: max_no_neigh_bqfull32									! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H32)
+      integer, dimension(:), allocatable :: bqfull32listsize			! Size of neighbour list for 4spin-2site Biquadratic Interaction (H32)
+      integer, dimension(:,:), allocatable :: bqfull32list				! Neighbours list for 4spin-2site Biquadratic Interaction (H32)
+      real(dblprec), dimension(:,:,:,:), allocatable :: bqfull32_tens 	! Exchange tensor for 4spin-2site Biquadratic Interaction (H32)
+
+      ! Variables for Biquadratic interaction 4spin-2site H33
+      integer :: max_no_neigh_bqfull33									! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H33)
+      integer, dimension(:), allocatable :: bqfull33listsize			! Size of neighbour list for 4spin-2site Biquadratic Interaction (H33)
+      integer, dimension(:,:), allocatable :: bqfull33list				! Neighbours list for 4spin-2site Biquadratic Interaction (H33)
+      real(dblprec), dimension(:,:,:,:), allocatable :: bqfull33_tens 	! Exchange tensor for 4spin-2site Biquadratic Interaction (H33)
+
+      ! Variables for Biquadratic interaction 4spin-2site H34
+      integer :: max_no_neigh_bqfull34									! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H34)
+      integer, dimension(:), allocatable :: bqfull34listsize			! Size of neighbour list for 4spin-2site Biquadratic Interaction (H34)
+      integer, dimension(:,:), allocatable :: bqfull34list				! Neighbours list for 4spin-2site Biquadratic Interaction (H34)
+      real(dblprec), dimension(:,:,:), allocatable :: bqfull34_vec		! Exchange tensor for 4spin-2site Biquadratic Interaction (H34)
+
+      ! Variables for Biquadratic interaction 4spin-2site H35
+      integer :: max_no_neigh_bqfull35										! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H35)
+      integer, dimension(:), allocatable :: bqfull35listsize				! Size of neighbour list for 4spin-2site Biquadratic Interaction (H35)
+      integer, dimension(:,:), allocatable :: bqfull35list					! Neighbours list for 4spin-2site Biquadratic Interaction (H35)
+      real(dblprec), dimension(:,:,:,:,:), allocatable :: bqfull35_3tens	! Exchange tensor for 4spin-2site Biquadratic Interaction (H35)
+      
+      ! Variables for Biquadratic interaction 4spin-2site H36
+      integer :: max_no_neigh_bqfull36										! Calculated maximum of neighbours for 4spin-2spin Biquadratic interactions (H36)
+      integer, dimension(:), allocatable :: bqfull36listsize				! Size of neighbour list for 4spin-2site Biquadratic Interaction (H36)
+      integer, dimension(:,:), allocatable :: bqfull36list					! Neighbours list for 4spin-2site Biquadratic Interaction (H36)
+      real(dblprec), dimension(:,:,:,:,:), allocatable :: bqfull36_3tens	! Exchange tensor for 4spin-2site Biquadratic Interaction (H36)
+
+      !!!!!!
+      !!!!!!
    end type ham_t
 
    public
