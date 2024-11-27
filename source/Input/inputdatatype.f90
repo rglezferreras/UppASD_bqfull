@@ -139,6 +139,97 @@ module InputDataType
       integer, dimension(3) :: RMAX !< Maximum number of cells in real space taken into account
       integer, dimension(3) :: KMAX !< Maximum number of cells in Fourier soace taken into account
       real(dblprec) :: Ewald_alpha  !< Ewald parameter
+      !
+      !---------------------------------------------------------------------------------
+      ! Biquadratic 4spin-2site terms - H11 - 3x3 tensor
+      !---------------------------------------------------------------------------------
+      integer :: do_bqfull11												! Include 4spin-2site Biquadratic Interaction (H11) (0=off, 1=on)
+	  integer :: max_no_shells_bqfull11										! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H11)
+	  character(len=35) :: bqfull11file										! File name for the 4spin-2site Biquadratic Interaction (H11)
+	  integer, dimension(:), allocatable :: bqfull11_nn						! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H11)
+	  real(dblprec), dimension(:,:,:), allocatable :: bqfull11_redcoord		! Coordinates for the 4spin-2site Biquadratic Interaction (H11) couplings
+	  real(dblprec), dimension(:,:,:,:,:,:), allocatable :: bqfull11_tens	! Tensorial exchange couplings for the 4spin-2site Biquadratic Interaction (H11)
+	  !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H21 - scalar
+	  !---------------------------------------------------------------------------------
+	  integer :: do_bqfull21												! Include 4spin-2site Biquadratic Interaction (H21) (0=off, 1=on)
+	  integer :: max_no_shells_bqfull21										! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H21)
+	  character(len=35) :: bqfull21file										! File name for the 4spin-2site Biquadratic Interaction (H21)
+	  integer, dimension(:), allocatable :: bqfull21_nn						! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H21)
+	  real(dblprec), dimension(:,:,:), allocatable :: bqfull21_redcoord		! Coordinates for the 4spin-2site Biquadratic Interaction (H21) couplings
+	  real(dblprec), dimension(:,:,:,:), allocatable :: bqfull21			! Scalar exchange couplings for the 4spin-2site Biquadratic Interaction (H21)
+	  !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H22 - 3x3 tensor
+	  !---------------------------------------------------------------------------------
+	  integer :: do_bqfull22												! Include 4spin-2site Biquadratic Interaction (H22) (0=off, 1=on)
+	  integer :: max_no_shells_bqfull22										! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H22)
+	  character(len=35) :: bqfull22file										! File name for the 4spin-2site Biquadratic Interaction (H22)
+	  integer, dimension(:), allocatable :: bqfull22_nn						! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H22)
+	  real(dblprec), dimension(:,:,:), allocatable :: bqfull22_redcoord		! Coordinates for the 4spin-2site Biquadratic Interaction (H22) couplings
+	  real(dblprec), dimension(:,:,:,:,:,:), allocatable :: bqfull22_tens	! Tensorial exchange couplings for the 4spin-2site Biquadratic Interaction (H22)
+	  !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H23 - vector
+	  !---------------------------------------------------------------------------------
+      integer :: do_bqfull23												! Include 4spin-2site Biquadratic Interaction (H23) (0=off, 1=on)
+      integer :: max_no_shells_bqfull23										! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H23)
+      character(len=35) :: bqfull23file										! File name for the 4spin-2site Biquadratic Interaction (H23)
+      integer, dimension(:), allocatable :: bqfull23_nn						! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H23)
+      real(dblprec), dimension(:,:,:), allocatable :: bqfull23_redcoord		! Coordinates for the 4spin-2site Biquadratic Interaction (H23) couplings
+      real(dblprec), dimension(:,:,:,:,:), allocatable :: bqfull23_vec		! Vectorial exchange couplings for the 4spin-2site Biquadratic Interaction (H23)
+	  !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H31 - scalar
+	  !---------------------------------------------------------------------------------
+	  integer :: do_bqfull31												! Include 4spin-2site Biquadratic Interaction (H31) (0=off, 1=on)
+	  integer :: max_no_shells_bqfull31										! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H31)
+	  character(len=35) :: bqfull31file										! File name for the 4spin-2site Biquadratic Interaction (H31)
+	  integer, dimension(:), allocatable :: bqfull31_nn						! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H31)
+	  real(dblprec), dimension(:,:,:), allocatable :: bqfull31_redcoord		! Coordinates for the 4spin-2site Biquadratic Interaction (H31) couplings
+	  real(dblprec), dimension(:,:,:,:), allocatable :: bqfull31			! Scalar exchange couplings for the 4spin-2site Biquadratic Interaction (H31)
+	  !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H32 - 3x3 tensor
+	  !---------------------------------------------------------------------------------
+	  integer :: do_bqfull32												! Include 4spin-2site Biquadratic Interaction (H32) (0=off, 1=on)
+	  integer :: max_no_shells_bqfull32										! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H32)
+	  character(len=35) :: bqfull32file										! File name for the 4spin-2site Biquadratic Interaction (H32)
+	  integer, dimension(:), allocatable :: bqfull32_nn						! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H32)
+	  real(dblprec), dimension(:,:,:), allocatable :: bqfull32_redcoord		! Coordinates for the 4spin-2site Biquadratic Interaction (H32) couplings
+	  real(dblprec), dimension(:,:,:,:,:,:), allocatable :: bqfull32_tens	! Tensorial exchange couplings for the 4spin-2site Biquadratic Interaction (H32)
+	  !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H33 - 3x3 tensor
+	  !---------------------------------------------------------------------------------
+	  integer :: do_bqfull33												! Include 4spin-2site Biquadratic Interaction (H33) (0=off, 1=on)
+	  integer :: max_no_shells_bqfull33										! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H33)
+	  character(len=35) :: bqfull33file										! File name for the 4spin-2site Biquadratic Interaction (H33)
+	  integer, dimension(:), allocatable :: bqfull33_nn						! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H33)
+	  real(dblprec), dimension(:,:,:), allocatable :: bqfull33_redcoord		! Coordinates for the 4spin-2site Biquadratic Interaction (H33) couplings
+	  real(dblprec), dimension(:,:,:,:,:,:), allocatable :: bqfull33_tens	! Tensorial exchange couplings for the 4spin-2site Biquadratic Interaction (H33)
+	  !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H34 - vector
+	  !---------------------------------------------------------------------------------
+      integer :: do_bqfull34												! Include 4spin-2site Biquadratic Interaction (H34) (0=off, 1=on)
+      integer :: max_no_shells_bqfull34										! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H34)
+      character(len=35) :: bqfull34file										! File name for the 4spin-2site Biquadratic Interaction (H34)
+      integer, dimension(:), allocatable :: bqfull34_nn						! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H34)
+      real(dblprec), dimension(:,:,:), allocatable :: bqfull34_redcoord		! Coordinates for the 4spin-2site Biquadratic Interaction (H34) couplings
+      real(dblprec), dimension(:,:,:,:,:), allocatable :: bqfull34_vec		! Vectorial exchange couplings for the 4spin-2site Biquadratic Interaction (H34)
+	  !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H35 - vector
+	  !---------------------------------------------------------------------------------
+      integer :: do_bqfull35														! Include 4spin-2site Biquadratic Interaction (H35) (0=off, 1=on)
+      integer :: max_no_shells_bqfull35												! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H35)
+      character(len=35) :: bqfull35file												! File name for the 4spin-2site Biquadratic Interaction (H35)
+      integer, dimension(:), allocatable :: bqfull35_nn								! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H35)
+      real(dblprec), dimension(:,:,:), allocatable :: bqfull35_redcoord				! Coordinates for the 4spin-2site Biquadratic Interaction (H35) couplings
+      real(dblprec), dimension(:,:,:,:,:,:,:), allocatable :: bqfull35_3tens		! Vectorial exchange couplings for the 4spin-2site Biquadratic Interaction (H35)
+      !---------------------------------------------------------------------------------
+	  ! 4spin-2site Biquadratic terms - H36 - vector
+	  !---------------------------------------------------------------------------------
+      integer :: do_bqfull36														! Include 4spin-2site Biquadratic Interaction (H36) (0=off, 1=on)
+      integer :: max_no_shells_bqfull36												! Actual maximum number of shells for 4spin-2site Biquadratic Interaction (H36)
+      character(len=35) :: bqfull36file												! File name for the 4spin-2site Biquadratic Interaction (H36)
+      integer, dimension(:), allocatable :: bqfull36_nn								! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H36)
+      real(dblprec), dimension(:,:,:), allocatable :: bqfull36_redcoord				! Coordinates for the 4spin-2site Biquadratic Interaction (H36) couplings
+      real(dblprec), dimension(:,:,:,:,:,:,:), allocatable :: bqfull36_3tens		! Vectorial exchange couplings for the 4spin-2site Biquadratic Interaction (H36)
    end type ham_inp_t
 
    public
