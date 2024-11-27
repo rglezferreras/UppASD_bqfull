@@ -611,6 +611,103 @@ contains
             !------------------------------------------------------------------------
 
             !------------------------------------------------------------------------
+            ! START OF VARIABLES FOR BQfull terms
+            !------------------------------------------------------------------------
+            !H11
+            case('bqfull11')
+               ham_inp%do_bqfull11=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull11file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull11file, &
+                  'Please specify bqfull H11 <bqfull11file> where <bqfull11file> is a valid bqfull H11 interaction file')
+
+            !H21
+            case('bqfull21')
+               ham_inp%do_bqfull21=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull21file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull21file, &
+                  'Please specify bqfull H21 <bqfull11file> where <bqfull21file> is a valid bqfull H21 interaction file')
+                  
+            !H22
+            case('bqfull22')
+               ham_inp%do_bqfull22=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull22file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull22file, &
+                  'Please specify bqfull H22 <bqfull22file> where <bqfull22file> is a valid bqfull H22 interaction file')
+                  
+            !H23
+            case('bqfull23')
+               ham_inp%do_bqfull23=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull23file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull23file, &
+                  'Please specify bqfull H23 <bqfull23file> where <bqfull23file> is a valid bqfull H23 interaction file')                                    
+
+            !H31
+            case('bqfull31')
+               ham_inp%do_bqfull31=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull31file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull31file, &
+                  'Please specify bqfull H31 <bqfull31file> where <bqfull31file> is a valid bqfull H31 interaction file')                                    
+
+            !H32
+            case('bqfull32')
+               ham_inp%do_bqfull32=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull32file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull32file, &
+                  'Please specify bqfull H32 <bqfull32file> where <bqfull32file> is a valid bqfull H32 interaction file')                                    
+
+            !H33
+            case('bqfull33')
+               ham_inp%do_bqfull33=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull33file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull33file, &
+                  'Please specify bqfull H33 <bqfull33file> where <bqfull33file> is a valid bqfull H33 interaction file')                                    
+
+            !H34
+            case('bqfull34')
+               ham_inp%do_bqfull34=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull34file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull34file, &
+                  'Please specify bqfull H34 <bqfull34file> where <bqfull34file> is a valid bqfull H34 interaction file')                                    
+
+            !H35
+            case('bqfull35')
+               ham_inp%do_bqfull35=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull35file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull35file, &
+                  'Please specify bqfull H35 <bqfull35file> where <bqfull35file> is a valid bqfull H35 interaction file')
+            
+            !H36
+            case('bqfull36')
+               ham_inp%do_bqfull36=1
+               read(ifile,'(a)',iostat=i_err) cache
+               if(i_err/=0) write(*,*) 'ERROR: Reading ',trim(keyword),' data',i_err
+               ham_inp%bqfull36file=trim(adjustl(cache))
+               call ErrorHandling_check_file_exists(ham_inp%bqfull36file, &
+                  'Please specify bqfull H36 <bqfull36file> where <bqfull36file> is a valid bqfull H36 interaction file')                                
+
+            !------------------------------------------------------------------------
+            ! END OF VARIABLES FOR BQfull terms
+            !------------------------------------------------------------------------            
+
+            !------------------------------------------------------------------------
             ! START OF VARIABLES FOR RANDOM NUMBERS
             !------------------------------------------------------------------------
 
