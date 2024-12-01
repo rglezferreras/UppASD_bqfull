@@ -333,25 +333,25 @@ contains
                if(ham_inp%do_bqfull11==1) then
 				  call bqfull11_field(ii, kk, beff_bqfull11,Natom,Mensemble,emomM)
 				  ebqfull11=ebqfull11+update_ene(emomM(1:3,ii,kk),beff_bqfull11,0.25_dblprec)
-				  if(plotenergy==2) site_energy(12,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull11,0.25_dblprec)
+				  if(plotenergy==2) site_energy(12,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull11,0.5_dblprec)
 			   endif
 			   ! Biquadratic 4spin-2site H21 interaction
 			   if(ham_inp%do_bqfull21==1) then
 				  call bqfull21_field(ii, kk, beff_bqfull21,Natom,Mensemble,emomM)
 				  ebqfull21=ebqfull21+update_ene(emomM(1:3,ii,kk),beff_bqfull21,0.25_dblprec)
-				  if(plotenergy==2) site_energy(13,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull21,0.25_dblprec)
+				  if(plotenergy==2) site_energy(13,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull21,0.5_dblprec)
 			   endif
 			   !Biquadratic 4spin-2site H22 interaction
                if(ham_inp%do_bqfull22==1) then
 				  call bqfull22_field(ii, kk, beff_bqfull22,Natom,Mensemble,emomM)
 				  ebqfull22=ebqfull22+update_ene(emomM(1:3,ii,kk),beff_bqfull22,0.25_dblprec)
-				  if(plotenergy==2) site_energy(14,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull22,0.25_dblprec)
+				  if(plotenergy==2) site_energy(14,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull22,0.5_dblprec)
 			   endif
 			   !Biquadratic 4spin-2site H23 interaction
                if(ham_inp%do_bqfull23==1) then
 				  call bqfull23_field(ii, kk, beff_bqfull23,Natom,Mensemble,emomM)
 				  ebqfull23=ebqfull23+update_ene(emomM(1:3,ii,kk),beff_bqfull23,0.25_dblprec)
-				  if(plotenergy==2) site_energy(15,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull23,0.25_dblprec)
+				  if(plotenergy==2) site_energy(15,ii,kk)=update_ene(emomM(1:3,ii,kk),beff_bqfull23,0.5_dblprec)
 			   endif
 			   ! Biquadratic 4spin-2site H31 interaction
 			   if(ham_inp%do_bqfull31==1) then
@@ -726,14 +726,14 @@ contains
          call memocc(i_stat,i_all,'bfield_dip','calc_energy')
       endif
 
-      10004 format (i8,14es16.8)
-      10005 format (es12.4,14es16.8)
-      10006 format (i8,11es16.8)
-      10007 format (es12.4,11es16.8)
-      10008 format (2i8,i6,14es16.8)
-      10010 format (a8,16a20)
-      10011 format (a8,11a16)
-      10015 format (2a8,a6,11a16)
+      10004 format (i8,24es16.8)
+      10005 format (es12.4,24es16.8)
+      10006 format (i8,21es16.8)
+      10007 format (es12.4,21es16.8)
+      10008 format (2i8,i6,22es16.8)
+      10010 format (a8,24a20)
+      10011 format (a8,21a16)
+      10015 format (2a8,a6,22a16)
 
    end subroutine calc_energy
 

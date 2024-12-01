@@ -174,8 +174,8 @@ contains
 
             ! Scalar chiral term
             if(ham_inp%do_chir==1) call chirality_field(i, k, beff_s,Natom,Mensemble,emomM)
-	    
-     		!!!!!!
+            
+            !!!!!!
             ! Biquadratic 4spin-2site H11 Interaction
             if(ham_inp%do_bqfull11==1)	call bqfull11_field(i,k,beff_q,Natom,Mensemble,emomM) !!Which field -> for now I'm assigning it to beff_q
 			! Biquadratic 4spin-2site H21 interaction
@@ -670,94 +670,10 @@ contains
 
           end do
     end subroutine ring_field
-      
-      
-
-      !---------------uniaxial_anisotropy---------------------------------------
-      !> @brief Field from the uniaxial anisotropy
-      !-------------------------------------------------------------------------
-      subroutine uniaxial_anisotropy_field(i, k, field,Natom,Mensemble,mult_axis,emomM)
-         implicit none
-
-         integer, intent(in) :: i !< Atom to calculate effective field for
-         integer, intent(in) :: k !< Current ensemble
-         integer, intent(in) :: Natom        !< Number of atoms in system
-         integer, intent(in) :: Mensemble    !< Number of ensembles
-         character(len=1), intent(in) :: mult_axis !< Flag to treat more than one anisotropy axis at the same time
-         real(dblprec), dimension(3), intent(inout) :: field !< Effective field
-         real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
-         !
-         real(dblprec) :: tt1,tt2,tt3
-         real(dblprec) :: tt1_d,tt2_d,tt3_d
-
-         ! Uniaxial anisotropy
-         ! cos(theta)
-         tt1=emomM(1,i,k)*ham%eaniso(1,i)+emomM(2,i,k)*ham%eaniso(2,i)+emomM(3,i,k)*ham%eaniso(3,i)
-         ! k1 + 2*k2*sin^2(theta) = k1 + 2*k2*(1-cos^2(theta))
-         tt2=ham%kaniso(1,i)+2.0_dblprec*ham%kaniso(2,i)*(1.0_dblprec-tt1*tt1)
-         ! 2 * cos(theta)* [k1 + 2*k2*sin^2(theta)]
-         tt3= 2.0_dblprec*tt1*tt2
-
-         if (mult_axis=='Y') then
-            ! Uniaxial anisotropy
-            ! cos(theta)
-            tt1_d=emomM(1,i,k)*ham%eaniso_diff(1,i)+emomM(2,i,k)*ham%eaniso_diff(2,i)+emomM(3,i,k)*ham%eaniso_diff(3,i)
-            ! k1 + 2*k2*sin^2(theta) = k1 + 2*k2*(1-cos^2(theta))
-            tt2_d=ham%kaniso_diff(1,i)+2.0_dblprec*ham%kaniso_diff(2,i)*(1.0_dblprec-tt1_d*tt1_d)
-            ! 2 * cos(theta)* [k1 + 2*k2*sin^2(theta)]
-            tt3_d= 2.0_dblprec*tt1_d*tt2_d
-
-            field  = field - tt3*ham%eaniso(1:3,i)-tt3_d*ham%eaniso_diff(1:3,i)
-         else
-
-            field  = field - tt3*ham%eaniso(1:3,i)
-         endif
-
-      end subroutine uniaxial_anisotropy_field
-
-      !---------------cubic_anisotropy_field---------------!
-      !> Cubic anisotropy
-      subroutine cubic_anisotropy_field(i, k, field,Natom,Mensemble,mult_axis,emomM)
-         implicit none
-
-         integer, intent(in) :: i !< Atom to calculate effective field for
-         integer, intent(in) :: k !< Current ensemble
-         integer, intent(in) :: Natom        !< Number of atoms in system
-         integer, intent(in) :: Mensemble    !< Number of ensembles
-         character(len=1), intent(in) :: mult_axis !< Flag to treat more than one anisotropy axis at the same time
-         real(dblprec), dimension(3), intent(inout) :: field !< Effective field
-         real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
-         !
-
-         field(1) = field(1)  &
-            + 2.0_dblprec*ham%kaniso(1,i)*emomM(1,i,k)*(emomM(2,i,k)**2+emomM(3,i,k)**2) &
-            + 2.0_dblprec*ham%kaniso(2,i)*emomM(1,i,k)*(emomM(2,i,k)**2*emomM(3,i,k)**2)
-         field(2) = field(2)  &
-            + 2.0_dblprec*ham%kaniso(1,i)*emomM(2,i,k)*(emomM(3,i,k)**2+emomM(1,i,k)**2) &
-            + 2.0_dblprec*ham%kaniso(2,i)*emomM(2,i,k)*(emomM(3,i,k)**2*emomM(1,i,k)**2)
-         field(3) = field(3)  &
-            + 2.0_dblprec*ham%kaniso(1,i)*emomM(3,i,k)*(emomM(1,i,k)**2+emomM(2,i,k)**2) &
-            + 2.0_dblprec*ham%kaniso(2,i)*emomM(3,i,k)*(emomM(1,i,k)**2*emomM(2,i,k)**2)
-
-         if (mult_axis=='Y') then
-
-            field(1) = field(1)  &
-               + 2.0_dblprec*ham%kaniso_diff(1,i)*emomM(1,i,k)*(emomM(2,i,k)**2+emomM(3,i,k)**2) &
-               + 2.0_dblprec*ham%kaniso_diff(2,i)*emomM(1,i,k)*emomM(2,i,k)**2*emomM(3,i,k)**2
-            field(2) = field(2)  &
-               + 2.0_dblprec*ham%kaniso_diff(1,i)*emomM(2,i,k)*(emomM(3,i,k)**2+emomM(1,i,k)**2) &
-               + 2.0_dblprec*ham%kaniso_diff(2,i)*emomM(2,i,k)*emomM(3,i,k)**2*emomM(1,i,k)**2
-            field(3) = field(3)  &
-               + 2.0_dblprec*ham%kaniso_diff(1,i)*emomM(3,i,k)*(emomM(1,i,k)**2+emomM(2,i,k)**2) &
-               + 2.0_dblprec*ham%kaniso_diff(2,i)*emomM(3,i,k)*emomM(1,i,k)**2*emomM(2,i,k)**2
-
-         endif
-
-      end subroutine cubic_anisotropy_field
-
-	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
    !---------------4spin-2site terms---------------!
    !!!!!!
@@ -1127,5 +1043,88 @@ contains
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      
+
+      !---------------uniaxial_anisotropy---------------------------------------
+      !> @brief Field from the uniaxial anisotropy
+      !-------------------------------------------------------------------------
+      subroutine uniaxial_anisotropy_field(i, k, field,Natom,Mensemble,mult_axis,emomM)
+         implicit none
+
+         integer, intent(in) :: i !< Atom to calculate effective field for
+         integer, intent(in) :: k !< Current ensemble
+         integer, intent(in) :: Natom        !< Number of atoms in system
+         integer, intent(in) :: Mensemble    !< Number of ensembles
+         character(len=1), intent(in) :: mult_axis !< Flag to treat more than one anisotropy axis at the same time
+         real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+         real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+         !
+         real(dblprec) :: tt1,tt2,tt3
+         real(dblprec) :: tt1_d,tt2_d,tt3_d
+
+         ! Uniaxial anisotropy
+         ! cos(theta)
+         tt1=emomM(1,i,k)*ham%eaniso(1,i)+emomM(2,i,k)*ham%eaniso(2,i)+emomM(3,i,k)*ham%eaniso(3,i)
+         ! k1 + 2*k2*sin^2(theta) = k1 + 2*k2*(1-cos^2(theta))
+         tt2=ham%kaniso(1,i)+2.0_dblprec*ham%kaniso(2,i)*(1.0_dblprec-tt1*tt1)
+         ! 2 * cos(theta)* [k1 + 2*k2*sin^2(theta)]
+         tt3= 2.0_dblprec*tt1*tt2
+
+         if (mult_axis=='Y') then
+            ! Uniaxial anisotropy
+            ! cos(theta)
+            tt1_d=emomM(1,i,k)*ham%eaniso_diff(1,i)+emomM(2,i,k)*ham%eaniso_diff(2,i)+emomM(3,i,k)*ham%eaniso_diff(3,i)
+            ! k1 + 2*k2*sin^2(theta) = k1 + 2*k2*(1-cos^2(theta))
+            tt2_d=ham%kaniso_diff(1,i)+2.0_dblprec*ham%kaniso_diff(2,i)*(1.0_dblprec-tt1_d*tt1_d)
+            ! 2 * cos(theta)* [k1 + 2*k2*sin^2(theta)]
+            tt3_d= 2.0_dblprec*tt1_d*tt2_d
+
+            field  = field - tt3*ham%eaniso(1:3,i)-tt3_d*ham%eaniso_diff(1:3,i)
+         else
+
+            field  = field - tt3*ham%eaniso(1:3,i)
+         endif
+
+      end subroutine uniaxial_anisotropy_field
+
+      !---------------cubic_anisotropy_field---------------!
+      !> Cubic anisotropy
+      subroutine cubic_anisotropy_field(i, k, field,Natom,Mensemble,mult_axis,emomM)
+         implicit none
+
+         integer, intent(in) :: i !< Atom to calculate effective field for
+         integer, intent(in) :: k !< Current ensemble
+         integer, intent(in) :: Natom        !< Number of atoms in system
+         integer, intent(in) :: Mensemble    !< Number of ensembles
+         character(len=1), intent(in) :: mult_axis !< Flag to treat more than one anisotropy axis at the same time
+         real(dblprec), dimension(3), intent(inout) :: field !< Effective field
+         real(dblprec), dimension(3,Natom,Mensemble), intent(in) :: emomM  !< Current magnetic moment vector
+         !
+
+         field(1) = field(1)  &
+            + 2.0_dblprec*ham%kaniso(1,i)*emomM(1,i,k)*(emomM(2,i,k)**2+emomM(3,i,k)**2) &
+            + 2.0_dblprec*ham%kaniso(2,i)*emomM(1,i,k)*(emomM(2,i,k)**2*emomM(3,i,k)**2)
+         field(2) = field(2)  &
+            + 2.0_dblprec*ham%kaniso(1,i)*emomM(2,i,k)*(emomM(3,i,k)**2+emomM(1,i,k)**2) &
+            + 2.0_dblprec*ham%kaniso(2,i)*emomM(2,i,k)*(emomM(3,i,k)**2*emomM(1,i,k)**2)
+         field(3) = field(3)  &
+            + 2.0_dblprec*ham%kaniso(1,i)*emomM(3,i,k)*(emomM(1,i,k)**2+emomM(2,i,k)**2) &
+            + 2.0_dblprec*ham%kaniso(2,i)*emomM(3,i,k)*(emomM(1,i,k)**2*emomM(2,i,k)**2)
+
+         if (mult_axis=='Y') then
+
+            field(1) = field(1)  &
+               + 2.0_dblprec*ham%kaniso_diff(1,i)*emomM(1,i,k)*(emomM(2,i,k)**2+emomM(3,i,k)**2) &
+               + 2.0_dblprec*ham%kaniso_diff(2,i)*emomM(1,i,k)*emomM(2,i,k)**2*emomM(3,i,k)**2
+            field(2) = field(2)  &
+               + 2.0_dblprec*ham%kaniso_diff(1,i)*emomM(2,i,k)*(emomM(3,i,k)**2+emomM(1,i,k)**2) &
+               + 2.0_dblprec*ham%kaniso_diff(2,i)*emomM(2,i,k)*emomM(3,i,k)**2*emomM(1,i,k)**2
+            field(3) = field(3)  &
+               + 2.0_dblprec*ham%kaniso_diff(1,i)*emomM(3,i,k)*(emomM(1,i,k)**2+emomM(2,i,k)**2) &
+               + 2.0_dblprec*ham%kaniso_diff(2,i)*emomM(3,i,k)*emomM(1,i,k)**2*emomM(2,i,k)**2
+
+         endif
+
+      end subroutine cubic_anisotropy_field
 
 end module HamiltonianActions

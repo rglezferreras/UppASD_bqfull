@@ -616,7 +616,7 @@ contains
       end do
 
    end subroutine scalar_to_tensor
-
+   
    !----------------------------------------------------------------------------
    !> @brief Allocate arrays for biquadratic 4spin-2site interaction H11
    !----------------------------------------------------------------------------
@@ -1092,5 +1092,4 @@ contains
 		 call memocc(i_stat,i_all,'bqfull36_3tens','allocate_bqfull36data')
       end if
    end subroutine allocate_bqfull36data
-
 end module HamiltonianData

@@ -60,7 +60,9 @@ contains
          allocate_dmhamiltoniandata, allocate_pdhamiltoniandata,                    &
          allocate_biqdmhamiltoniandata, allocate_bqhamiltoniandata,                 &
          allocate_chirhamiltoniandata, allocate_ringhamiltoniandata, ham,           &
-         allocate_fourxhamiltoniandata, allocate_sahamiltoniandata
+         allocate_fourxhamiltoniandata, allocate_sahamiltoniandata,					&
+         allocate_bqfull11data, allocate_bqfull21data, allocate_bqfull22data, allocate_bqfull23data , &
+         allocate_bqfull31data, allocate_bqfull32data, allocate_bqfull33data, allocate_bqfull34data, allocate_bqfull35data, allocate_bqfull36data
       use PrintHamiltonian
       use LatticeHamiltonianInit, only : setup_neighbour_latticehamiltonian
       use DipoleManager, only : dipole_setup
@@ -260,7 +262,6 @@ contains
 
                      !Re-scale DMI if needed
                      if(ham_inp%dm_scale.ne.1.0_dblprec) ham%dm_vect=ham_inp%dm_scale*ham%dm_vect
-
                   write(*,'(a)') ' done'
                   call deallocate_nm()
                endif
@@ -362,7 +363,7 @@ contains
             ! Randomize Jij if Edwards-Anderson model is enabled
             if(ham_inp%ea_model) then
                call randomize_exchange(NA,1,Natom,ham%max_no_neigh,ham%nlistsize, &
-                  ham%nlist,ham%ncoup,ham%aham,do_reduced,ham_inp%ea_sigma,ham_inp%ea_algo)
+                  ham%nlist,ham%ncoup,ham%aham,do_reduced,ham_inp%ea_sigma)
             end if
 
             if(do_prnstruct==1.or.do_prnstruct==4) then
@@ -510,13 +511,6 @@ contains
          !Re-scale DMI if needed
          if(ham_inp%dm_scale.ne.1.0_dblprec) ham%dm_vect=ham_inp%dm_scale*ham%dm_vect
 
-
-         ! Randomize Dij if random DM-model is enabled
-         if(ham_inp%rdm_model) then
-            call randomize_exchange(NA,3,Natom,ham%max_no_dmneigh,ham%dmlistsize, &
-               ham%dmlist,ham%dm_vect,ham%aham,do_reduced,ham_inp%rdm_sigma,ham_inp%rdm_algo)
-         end if
-
          ! Deallocate the large neighbour map.
          call deallocate_nm()
 
@@ -573,7 +567,7 @@ contains
             write(*,'(a)') ' done'
          end if
       end if
-
+      
       !!!!!!	!!!!!!		!!!!!!
       !!!!!!	!!!!!!		!!!!!!
       !!!!!!	!!!!!!		!!!!!!
@@ -667,6 +661,7 @@ contains
       
       !If biquadratic 4spin-2site H23 interaction
       if(ham_inp%do_bqfull23==1) then
+		 write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H23'
          ! Allocate and mount DM Hamiltonian
          call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
 			Bas,ham%max_no_neigh_bqfull23,ham_inp%max_no_shells_bqfull23,&
@@ -674,11 +669,10 @@ contains
             nm,nmdim,do_ralloy,Natom_full,acellnumb,atype_ch)
          write(*,'(a)') ' done'
 
-
          call allocate_bqfull23data(Natom,nHam,ham%max_no_neigh_bqfull23,1)
 
          ! Transform data to general structure
-         write (*,'(2x,a)',advance='no') 'Mount Dzyaloshinskii-Moriya Hamiltonian'
+         write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H23'
          call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype,    &
             ham%max_no_neigh_bqfull23,max_no_equiv,ham_inp%max_no_shells_bqfull23,ham%bqfull23listsize,ham_inp%bqfull23_nn,   &
             ham%bqfull23list,ham%bqfull23_vec,nm,nmdim,ham_inp%bqfull23_vec,ham%fs_nlist,&
@@ -789,7 +783,8 @@ contains
 
       !If biquadratic 4spin-2site H34 interaction
       if(ham_inp%do_bqfull34==1) then
-         ! Allocate and mount DM Hamiltonian
+         !Mount the 4spin-2site biquadratic terms
+         write (*,'(2x,a)',advance='no') 'Set up neighbour map for 4spin-2site Biquadratic exchange H34'
          call setup_nm(Natom,NT,NA,N1,N2,N3,C1,C2,C3,BC1,BC2,BC3,block_size,atype,  &
 			Bas,ham%max_no_neigh_bqfull34,ham_inp%max_no_shells_bqfull34,&
 			max_no_equiv,0,ham_inp%bqfull34_nn,ham_inp%bqfull34_redcoord,&
@@ -800,7 +795,7 @@ contains
          call allocate_bqfull34data(Natom,nHam,ham%max_no_neigh_bqfull34,1)
 
          ! Transform data to general structure
-         write (*,'(2x,a)',advance='no') 'Mount Dzyaloshinskii-Moriya Hamiltonian'
+         write (*,'(2x,a)',advance='no') 'Mount 4spin-2site Biquadratic Interaction Hamiltonian H34'
          call setup_neighbour_hamiltonian(Natom,conf_num,NT,NA,nHam,anumb,atype,    &
             ham%max_no_neigh_bqfull34,max_no_equiv,ham_inp%max_no_shells_bqfull34,ham%bqfull34listsize,ham_inp%bqfull34_nn,   &
             ham%bqfull34list,ham%bqfull34_vec,nm,nmdim,ham_inp%bqfull34_vec,ham%fs_nlist,&
@@ -882,7 +877,6 @@ contains
       !!!!!!	!!!!!!		!!!!!!
       !!!!!!	!!!!!!		!!!!!!
       !!!!!!	!!!!!!		!!!!!!
-
 
       ! If LSF
       if(do_lsf=='Y') then
@@ -1909,9 +1903,8 @@ contains
    !> @details Loops over all couplings and multiplies the original value
    !> with a Gaussian random number between (-1,1)
    !----------------------------------------------------------------------------
-   subroutine randomize_exchange(NA,mdim,Natom,max_no_neigh,nlistsize,nlist,ncoup,aham,do_reduced,sigma, algorithm)
+   subroutine randomize_exchange(NA,mdim,Natom,max_no_neigh,nlistsize,nlist,ncoup,aham,do_reduced,sigma)
       
-      use Constants
       use RandomNumbers, only : rng_gaussian
 
       implicit none
@@ -1925,16 +1918,12 @@ contains
       real(dblprec), dimension(mdim,max_no_neigh, Natom), intent(inout) :: ncoup !< Heisenberg exchange couplings
       integer, dimension(Natom), optional, intent(in) :: aham !< Hamiltonian look-up table
       character(len=1), intent(in) :: do_reduced       !< Use reduced formulation of Hamiltonian (T/F)
-      real(dblprec),intent(in) :: sigma                !< Standard deviaton for Gaussian RNG
-      character(len=1), intent(in) :: algorithm        !< Choice of randomization algoritm
+      real(dblprec),intent(in) :: sigma                  !< Standard deviaton for Gaussian RNG
 
       !.. Local variables
       integer :: iatom,jatom,ineigh,iham,ielem, jneigh, jham, jelem
       real(dblprec), dimension(:,:,:), allocatable :: rng_arr
-      real(dblprec) :: xc_sign, xc_norm
-      real(dblprec) :: fc2
 
-      fc2 = 2.0_dblprec * mry/mub
       ! loop over neighbor list 
       !!! if(do_reduced=='Y') then
       !!!    allocate(rng_arr(mdim,max_no_neigh,NA))
@@ -1951,97 +1940,25 @@ contains
       allocate(rng_arr(mdim,max_no_neigh,Natom))
       call rng_gaussian(rng_arr,mdim*max_no_neigh*Natom,sigma)
 
-
-      ! Set the sign for symmetry check: Jij = Jji but Dij = -Dji
-      xc_sign = 1.0_dblprec
-      if(mdim==3) then  !Assume DMI if mdim=3
-         xc_sign = -1.0_dblprec
-      end if
-
-      ! Default algorithm (S)cale: Scale the existing coupling by multiplying with random Gaussian number
-      if (algorithm == 'S') then
-         do iatom=1,Natom
-            iham=aham(iatom)
-            do ineigh=1,nlistsize(iham)
-               jatom=nlist(ineigh,iatom)
-               do ielem=1,mdim
-                  ncoup(ielem,ineigh,iham)=ncoup(ielem,ineigh,iham)*rng_arr(ielem,ineigh,iham)
-               enddo
-               ! Ensure symmetry Jij=Jji
-               jham=aham(jatom)
-               do jneigh=1,nlistsize(jham)
-                  if (nlist(jneigh,jatom)==iatom) then
-                     do jelem=1,mdim
-                        ncoup(jelem,jneigh,jham)=xc_sign*ncoup(jelem,ineigh,iham)
-                     enddo
-                  end if
-               end do
+      do iatom=1,Natom
+         iham=aham(iatom)
+         do ineigh=1,nlistsize(iham)
+            jatom=nlist(ineigh,iatom)
+            do ielem=1,mdim
+               ncoup(ielem,ineigh,iham)=ncoup(ielem,ineigh,iham)*rng_arr(ielem,ineigh,iham)
             enddo
-         end do
-      ! Alternative algorithm (A)round: Add a random Gaussian number to the existing value
-      else if (algorithm == 'A') then
-         do iatom=1,Natom
-            iham=aham(iatom)
-            do ineigh=1,nlistsize(iham)
-               jatom=nlist(ineigh,iatom)
-               do ielem=1,mdim
-                  ncoup(ielem,ineigh,iham)=ncoup(ielem,ineigh,iham)+rng_arr(ielem,ineigh,iham)
-               enddo
-               ! Ensure symmetry Jij=Jji
-               jham=aham(jatom)
-               do jneigh=1,nlistsize(jham)
-                  if (nlist(jneigh,jatom)==iatom) then
-                     do jelem=1,mdim
-                        ncoup(jelem,jneigh,jham)=xc_sign*ncoup(jelem,ineigh,iham)
-                     enddo
-                  end if
-               end do
-            enddo
-         end do
-      ! Alternative algorithm (F)ully random: Set each individual coupling component to a random 
-      ! Gaussian number (then sigma sets the magnitude of each component)
-      else if (algorithm == 'F') then
-         do iatom=1,Natom
-            iham=aham(iatom)
-            do ineigh=1,nlistsize(iham)
-               jatom=nlist(ineigh,iatom)
-               do ielem=1,mdim
-                  ncoup(ielem,ineigh,iham)=rng_arr(ielem,ineigh,iham)*fc2
-               enddo
-               ! Ensure symmetry Jij=Jji
-               jham=aham(jatom)
-               do jneigh=1,nlistsize(jham)
-                  if (nlist(jneigh,jatom)==iatom) then
-                     do jelem=1,mdim
-                        ncoup(jelem,jneigh,jham)=xc_sign*ncoup(jelem,ineigh,iham)
-                     enddo
-                  end if
-               end do
-            enddo
-         end do
-      ! Alternative algorithm (R)otate and scale: Set each component by multiplying the initial magnitude with a 
-      ! Gaussian random number in each direction
-      else if (algorithm == 'R') then
-         do iatom=1,Natom
-            iham=aham(iatom)
-            do ineigh=1,nlistsize(iham)
-               jatom=nlist(ineigh,iatom)
-               xc_norm = sqrt(sum(ncoup(:,ineigh,iham)*ncoup(:,ineigh,iham)))
-               do ielem=1,mdim
-                  ncoup(ielem,ineigh,iham)=xc_norm*rng_arr(ielem,ineigh,iham)
-               enddo
-               ! Ensure symmetry Jij=Jji
-               jham=aham(jatom)
-               do jneigh=1,nlistsize(jham)
-                  if (nlist(jneigh,jatom)==iatom) then
-                     do jelem=1,mdim
-                        ncoup(jelem,jneigh,jham)=xc_sign*ncoup(jelem,ineigh,iham)
-                     enddo
-                  end if
-               end do
-            enddo
-         end do
-      end if
+            ! Ensure symmetry Jij=Jji
+            jham=aham(jatom)
+            do jneigh=1,nlistsize(jham)
+               if (nlist(jneigh,jatom)==iatom) then
+                  do jelem=1,mdim
+                     ncoup(jelem,jneigh,jham)=ncoup(jelem,ineigh,iham)
+                  enddo
+               end if
+            end do
+         enddo
+      end do
+      !!! end if
       !
       deallocate(rng_arr)
       !

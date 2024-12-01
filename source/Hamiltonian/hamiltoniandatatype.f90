@@ -80,24 +80,6 @@ module HamiltonianDataType
       real(dblprec), dimension(:,:), allocatable :: kaniso_diff   !< Anisotropy constant
       real(dblprec), dimension(:,:), allocatable :: eaniso        !< Unit anisotropy vector
       real(dblprec), dimension(:,:), allocatable :: eaniso_diff   !< Unit anisotropy vector
-      ! Variables for induced moments
-      integer :: fix_num                                    !< Number of "fixed" moments
-      integer :: max_no_neigh_ind                           !< Number of nearest neighbours for the induced treatment
-      integer, dimension(:), allocatable :: fix_list        !< List containing the "fixed" moments
-      integer, dimension(:), allocatable :: ind_list_full   !< Indication of whether a given moment is induced/fixed 1/0
-      integer, dimension(:), allocatable :: ind_nlistsize   !< Size of the list for the induced moments
-      integer, dimension(:,:), allocatable :: ind_nlist     !< Neighbour list between induced moments and their first permanent moments
-      integer, dimension(:), allocatable :: fix_nlistsize   !< Size of the list for the permanent moments
-      integer, dimension(:,:), allocatable :: fix_nlist     !< Neighbour list between permanent moments and their first induced moments
-      real(dblprec), dimension(:), allocatable :: sus_ind   !< Scaling factor for the magneitc moment of the induced moments
-      ! Variables for LSF
-      integer, dimension(:), allocatable :: fs_nlistsize    !< Size of first shell neighbouring list for centered atom
-      integer, dimension(:,:), allocatable :: nind          !< Index of firstshell-neighbour-list corresponds to neighbour-list
-      integer, dimension(:,:), allocatable :: fs_nlist      !< First shell Neighbouring list for centered atom
-      ! Variables for dipolar
-      real(dblprec), dimension(:,:,:,:), allocatable :: Qdip         !< Matrix for dipole-dipole interaction
-      real(dblprec), dimension(:,:,:,:), allocatable :: Qdip_macro   !< Matrix for macro spin dipole-dipole interaction
-
       !!!!!!
       !!!!!!
       ! Variables for Biquadratic interaction 4spin-2site H11
@@ -162,6 +144,23 @@ module HamiltonianDataType
 
       !!!!!!
       !!!!!!
+      ! Variables for induced moments
+      integer :: fix_num                                    !< Number of "fixed" moments
+      integer :: max_no_neigh_ind                           !< Number of nearest neighbours for the induced treatment
+      integer, dimension(:), allocatable :: fix_list        !< List containing the "fixed" moments
+      integer, dimension(:), allocatable :: ind_list_full   !< Indication of whether a given moment is induced/fixed 1/0
+      integer, dimension(:), allocatable :: ind_nlistsize   !< Size of the list for the induced moments
+      integer, dimension(:,:), allocatable :: ind_nlist     !< Neighbour list between induced moments and their first permanent moments
+      integer, dimension(:), allocatable :: fix_nlistsize   !< Size of the list for the permanent moments
+      integer, dimension(:,:), allocatable :: fix_nlist     !< Neighbour list between permanent moments and their first induced moments
+      real(dblprec), dimension(:), allocatable :: sus_ind   !< Scaling factor for the magneitc moment of the induced moments
+      ! Variables for LSF
+      integer, dimension(:), allocatable :: fs_nlistsize    !< Size of first shell neighbouring list for centered atom
+      integer, dimension(:,:), allocatable :: nind          !< Index of firstshell-neighbour-list corresponds to neighbour-list
+      integer, dimension(:,:), allocatable :: fs_nlist      !< First shell Neighbouring list for centered atom
+      ! Variables for dipolar
+      real(dblprec), dimension(:,:,:,:), allocatable :: Qdip         !< Matrix for dipole-dipole interaction
+      real(dblprec), dimension(:,:,:,:), allocatable :: Qdip_macro   !< Matrix for macro spin dipole-dipole interaction
    end type ham_t
 
    public
