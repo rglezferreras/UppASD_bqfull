@@ -33,7 +33,6 @@ module InputDataType
       real(dblprec) :: jij_scale                               !< Rescale Jij couplings manually
       logical ::  ea_model                                     !< Randomize exchange couplings for Edwards-Anderson model T,(F)
       real(dblprec) ::  ea_sigma                               !< Standard deviation for Edwards-Anderson randomization
-      character(len=1) :: ea_algo                              !< Algoritm for Edwards-Anderson randomization
       !---------------------------------------------------------------------------------
       ! Anisotropy data
       !---------------------------------------------------------------------------------
@@ -53,9 +52,6 @@ module InputDataType
       integer :: max_no_dmshells                            !< Actual maximum number of shells for DM interactions
       character(len=35) :: dmfile                           !< File name for Dzyaloshinskii-Moriya data
       real(dblprec) :: dm_scale                             !< Rescale Dij couplings manually
-      logical ::  rdm_model                                 !< Randomize Dij couplings
-      real(dblprec) ::  rdm_sigma                           !< Standard deviation for random Dij couplings
-      character(len=1) :: rdm_algo                          !< Algoritm for random Dij couplings
       integer, dimension(:), allocatable :: dm_nn           !< No. shells of neighbours for DM
       real(dblprec), dimension(:,:,:), allocatable :: dm_redcoord    !< Neighbour vectors for DM
       real(dblprec), dimension(:,:,:,:,:), allocatable :: dm_inpvect !< Neighbour vectors for DM
@@ -139,7 +135,6 @@ module InputDataType
       integer, dimension(3) :: RMAX !< Maximum number of cells in real space taken into account
       integer, dimension(3) :: KMAX !< Maximum number of cells in Fourier soace taken into account
       real(dblprec) :: Ewald_alpha  !< Ewald parameter
-      !
       !---------------------------------------------------------------------------------
       ! Biquadratic 4spin-2site terms - H11 - 3x3 tensor
       !---------------------------------------------------------------------------------
@@ -230,6 +225,11 @@ module InputDataType
       integer, dimension(:), allocatable :: bqfull36_nn								! Number shells of neighbours for the 4spin-2site Biquadratic Interaction (H36)
       real(dblprec), dimension(:,:,:), allocatable :: bqfull36_redcoord				! Coordinates for the 4spin-2site Biquadratic Interaction (H36) couplings
       real(dblprec), dimension(:,:,:,:,:,:,:), allocatable :: bqfull36_3tens		! Vectorial exchange couplings for the 4spin-2site Biquadratic Interaction (H36)
+
+
+
+
+
    end type ham_inp_t
 
    public

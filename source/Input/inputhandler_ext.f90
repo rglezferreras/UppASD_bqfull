@@ -49,6 +49,7 @@ module InputHandler_ext
    public :: read_bqfull31, read_bqfull32, read_bqfull33, read_bqfull34
    public :: read_bqfull35, read_bqfull36
 
+
 contains
 
 
@@ -2663,7 +2664,7 @@ contains
       end if
 
    end subroutine allocate_barriers
-
+   
    !---------------------------------------------------------------------------------
    ! SUBROUTINE: read_bqfull11
    !> @brief Read the variables for the biquadratic 4spin-2site H11 interaction
@@ -2845,7 +2846,7 @@ contains
       integer       				:: itype,jtype,isite,jsite,ichem,jchem,iline,ishell
       integer       				:: flines,no_shells
       logical 	  					:: unique
-      real(dblprec) 				:: bqfull22_tmp(3,3)
+      real(dblprec), dimension(3,3)	:: bqfull22_tmp
       real(dblprec)					:: tol, norm
       real(dblprec), dimension(3) 	:: r_tmp, r_red
 	
@@ -2960,8 +2961,12 @@ contains
       allocate(ham_inp%bqfull23_vec(3,NT,ham_inp%max_no_shells_bqfull23,Nchmax,Nchmax),stat=i_stat)
       call memocc(i_stat,product(shape(ham_inp%bqfull23_vec))*kind(ham_inp%bqfull23_vec),'bqfull23_vec','read_bqfull23')
       ham_inp%bqfull23_vec = 0.0_dblprec
+      
+      !Number of atoms (neighbours), each atom is haing exchange interactions with
+      allocate(ham_inp%bqfull23_nn(NT),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull23_nn))*kind(ham_inp%bqfull23_nn),'bqfull23_nn','read_bqfull23')
+      ham_inp%bqfull23_nn  = 0.0_dblprec
       !*****
-	
 	
       ! Read exchange vectors
       ! Isite, Jsite, Ichem, Jchem
@@ -2969,7 +2974,7 @@ contains
 
          ! Read indices and coordinates
 		 if(do_ralloy==0) then
-			read (ifileno,*) isite, jsite, r_tmp, bqfull23_tmp
+			read (ifileno,*) isite, jsite, r_tmp(1:3), bqfull23_tmp
 			ichem=1
 			jchem=1
 		 else
@@ -3006,8 +3011,8 @@ contains
 		 end if
       enddo
       ham_inp%max_no_shells_bqfull23=maxval(ham_inp%bqfull23_nn)
-      call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull23_redcoord,nt,ham_inp%max_no_shells_bqfull23)
-      call read_dmexchange_reduceCouplingMatrixSize(ham_inp%bqfull23_vec,nt,ham_inp%max_no_shells_bqfull23,nchmax)
+      !call read_exchange_reduceRedCoordMatrixSize(ham_inp%bqfull23_redcoord,nt,ham_inp%max_no_shells_bqfull23)
+      !call read_dmexchange_reduceCouplingMatrixSize(ham_inp%bqfull23_vec,nt,ham_inp%max_no_shells_bqfull23,nchmax)
       close (ifileno)
    end subroutine read_bqfull23
 
@@ -3310,6 +3315,11 @@ contains
       allocate(ham_inp%bqfull34_vec(3,NT,ham_inp%max_no_shells_bqfull34,Nchmax,Nchmax),stat=i_stat)
       call memocc(i_stat,product(shape(ham_inp%bqfull34_vec))*kind(ham_inp%bqfull34_vec),'bqfull34_vec','read_bqfull34')
       ham_inp%bqfull34_vec = 0.0_dblprec
+      
+      !Number of atoms (neighbours), each atom is haing exchange interactions with
+      allocate(ham_inp%bqfull34_nn(NT),stat=i_stat)
+      call memocc(i_stat,product(shape(ham_inp%bqfull34_nn))*kind(ham_inp%bqfull34_nn),'bqfull34_nn','read_bqfull34')
+      ham_inp%bqfull34_nn  = 0.0_dblprec
       !*****
 	
 	
@@ -3531,5 +3541,5 @@ contains
 
       close (ifileno)
    end subroutine read_bqfull36
-
+   
 end module InputHandler_ext
